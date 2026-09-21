@@ -1,0 +1,24 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 400 400" width="100%" height="100%">
+  <defs>
+    <linearGradient id="murindaGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#001f3f"/>
+      <stop offset="50%" stop-color="#003366"/>
+      <stop offset="100%" stop-color="#004080"/>
+    </linearGradient>
+    <linearGradient id="goldGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#f59e0b"/>
+      <stop offset="100%" stop-color="#d97706"/>
+    </linearGradient>
+  </defs>
+  <!-- Background Shield/Badge -->
+  <rect width="400" height="400" rx="40" fill="url(#murindaGrad)"/>
+  <!-- Steel Structure M Frame -->
+  <path d="M 70 320 L 70 120 L 140 220 L 200 130 L 260 220 L 330 120 L 330 320 L 280 320 L 280 200 L 230 270 L 200 225 L 170 270 L 120 200 L 120 320 Z" fill="#ffffff"/>
+  <!-- Steel Cross Beam Highlights -->
+  <polygon points="120,150 170,225 150,235 110,175" fill="url(#goldGrad)"/>
+  <polygon points="280,150 230,225 250,235 290,175" fill="url(#goldGrad)"/>
+  <!-- Base Steel Beam -->
+  <rect x="50" y="325" width="300" height="25" rx="5" fill="url(#goldGrad)"/>
+  <!-- Text Label -->
+  <text x="200" y="375" font-family="'Inter', Arial, sans-serif" font-weight="900" font-size="28" fill="#ffffff" text-anchor="middle" letter-spacing="3">MURINDA</text>
+</svg>
