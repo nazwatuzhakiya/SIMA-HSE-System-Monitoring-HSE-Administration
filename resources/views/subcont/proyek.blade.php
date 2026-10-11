@@ -1,128 +1,42 @@
 @extends('layouts.app')
 
-@section('title', 'Monitoring Proyek (FA & ENT)')
-@section('page_heading', 'Monitoring Pekerja Proyek (FA & ENT)')
-@section('page_subheading', 'Pengawasan Keselamatan Kerja Tenaga Kerja Konstruksi & Lapangan Proyek')
+@section('title', 'Monitoring Pekerja ' . $activeCompany)
+@section('page_heading', 'Monitoring Personel ' . ($activeCompany === 'ENT' ? 'ENT (Enterprise Proyek)' : 'FA/PROJECT'))
+@section('page_subheading', 'Pengawasan Keselamatan Kerja Proyek — Total Personel: ENT (' . $entStats['total'] . '), FA/PROJECT (' . $faStats['total'] . ')')
 
 @section('content')
 <div class="container-fluid px-0">
 
     <!-- Official Header for Print -->
     <x-murinda-header
-        title="MONITORING DATA PEKERJA PROYEK"
-        subhead="DATABASE TENAGA KERJA PROYEK & KONSTRUKSI (FA/PROJECT & ENT)"
+        title="MONITORING DATA PEKERJA {{ $activeCompany }}"
+        subhead="DATABASE TENAGA KERJA PROYEK & KONSTRUKSI (ENT & FA/PROJECT)"
         docNo="DOC-HSE-MIS-PROYEK-2026"
     />
 
     <!-- ======================================================== -->
-    <!-- 1. RINGKASAN DATA PEKERJA PROYEK PER PERIODE AKTIF        -->
-    <!-- ======================================================== -->
-    <!-- ======================================================== -->
-    <!-- 1. HEADER AKSI & PERIODE AKTIF (BADGE DI KANAN / PINGGIR)  -->
+    <!-- 1. HEADER AKSI & PERIODE AKTIF                            -->
     <!-- ======================================================== -->
     <div class="d-flex flex-wrap justify-content-between align-items-center mb-3 gap-2 no-print">
         <div class="d-flex flex-wrap align-items-center gap-2">
             <button type="button" class="btn btn-murinda-primary btn-sm fw-bold px-3 shadow-sm" data-bs-toggle="modal" data-bs-target="#modalTambahProyek">
-                <i class="fa-solid fa-plus me-1"></i> Tambah Pekerja Proyek
+                Tambah Pekerja {{ $activeCompany }}
             </button>
             <button type="button" class="btn btn-excel btn-sm fw-bold px-3 shadow-sm" onclick="exportTableToExcel('tabel-proyek-pekerja', 'DATA_PEKERJA_PROYEK_{{ $activeCompany }}', 'DAFTAR TENAGA KERJA PROYEK {{ $activeCompany }}')">
-                <i class="fa-solid fa-file-excel me-1"></i> Ekspor Excel
+                Ekspor Excel
             </button>
             <button type="button" class="btn btn-pdf btn-sm fw-bold px-3 shadow-sm" onclick="window.print()">
-                <i class="fa-solid fa-file-pdf me-1"></i> Cetak PDF
+                Cetak PDF
             </button>
         </div>
 
         <div class="d-flex flex-wrap align-items-center gap-2 ms-auto">
-            <span class="badge badge-blured-gray px-3 py-2 shadow-sm" style="font-size: 12px; border-radius: 6px;">
-                <i class="fa-regular fa-clock me-1 text-primary"></i> Periode (26 s/d 25): {{ $period['label'] }}
+            <span class="badge badge-blured-gray px-3 py-2 shadow-sm text-dark" style="font-size: 12px; border-radius: 6px;">
+                Periode: {{ $period['label'] }}
             </span>
-            <span class="badge badge-blured-gray px-3 py-2 shadow-sm" style="font-size: 12px; border-radius: 6px;">
-                <i class="fa-regular fa-calendar-check me-1 text-primary"></i> Hari Ini: {{ date('d/m/Y') }}
+            <span class="badge badge-blured-gray px-3 py-2 shadow-sm text-dark" style="font-size: 12px; border-radius: 6px;">
+                Hari Ini: {{ date('d/m/Y') }}
             </span>
-        </div>
-    </div>
-
-    <!-- ======================================================== -->
-    <!-- 1. RINGKASAN TERPISAH: ENT vs FA/PROJECT (CLEAN MINIMAL) -->
-    <!-- ======================================================== -->
-    <div class="row g-3 mb-3 no-print">
-        <div class="col-md-6">
-            <div class="card p-3 h-100 {{ $activeCompany === 'ENT' ? 'bg-white shadow-sm' : 'bg-light' }}" 
-                 style="border-radius: 8px; border: 1px solid {{ $activeCompany === 'ENT' ? '#cbd5e1' : '#e2e8f0' }}; {{ $activeCompany === 'ENT' ? 'border-top: 3px solid #003366 !important;' : '' }}">
-                <div class="d-flex justify-content-between align-items-center">
-                    <div>
-                        <div class="d-flex align-items-center gap-2 mb-1">
-                            <span class="fw-bold" style="font-size: 13.5px; color: #003366;">
-                                <i class="fa-solid fa-building me-1.5 text-secondary"></i> ENT (Enterprise)
-                            </span>
-                            @if($activeCompany === 'ENT')
-                                <span class="badge px-2 py-0.5" style="background: #edf2f7; color: #003366; border: 1px solid #cbd5e1; font-size: 10.5px;">
-                                    <i class="fa-solid fa-check text-success me-1"></i> Sedang Dilihat
-                                </span>
-                            @endif
-                        </div>
-                        <div class="d-flex align-items-baseline gap-2 mt-1">
-                            <h4 class="fw-bold m-0 text-dark" style="font-size: 20px;">{{ $entStats['total'] }}</h4>
-                            <span class="text-muted" style="font-size: 12px;">Total Personel</span>
-                            <span class="text-muted mx-1">&bull;</span>
-                            <span class="text-success fw-semibold" style="font-size: 12px;">{{ $entStats['aktif'] }} Aktif</span>
-                            <span class="text-muted mx-1">&bull;</span>
-                            <span class="text-secondary" style="font-size: 12px;">{{ $entStats['non_aktif'] }} Non-Aktif (Off)</span>
-                        </div>
-                    </div>
-                    <div>
-                        @if($activeCompany === 'ENT')
-                            <span class="badge px-3 py-2 fw-semibold" style="background: #edf2f7; color: #003366; font-size: 11.5px;">
-                                Aktif
-                            </span>
-                        @else
-                            <a href="{{ route('subcont.proyek', ['company' => 'ENT']) }}" class="btn btn-sm btn-murinda-outline px-3 fw-semibold" style="font-size: 12px;">
-                                Pilih ENT <i class="fa-solid fa-chevron-right ms-1"></i>
-                            </a>
-                        @endif
-                    </div>
-                </div>
-            </div>
-        </div>
-
-        <div class="col-md-6">
-            <div class="card p-3 h-100 {{ $activeCompany === 'FA/PROJECT' ? 'bg-white shadow-sm' : 'bg-light' }}" 
-                 style="border-radius: 8px; border: 1px solid {{ $activeCompany === 'FA/PROJECT' ? '#cbd5e1' : '#e2e8f0' }}; {{ $activeCompany === 'FA/PROJECT' ? 'border-top: 3px solid #003366 !important;' : '' }}">
-                <div class="d-flex justify-content-between align-items-center">
-                    <div>
-                        <div class="d-flex align-items-center gap-2 mb-1">
-                            <span class="fw-bold" style="font-size: 13.5px; color: #003366;">
-                                <i class="fa-solid fa-helmet-safety me-1.5 text-secondary"></i> FA / PROJECT
-                            </span>
-                            @if($activeCompany === 'FA/PROJECT')
-                                <span class="badge px-2 py-0.5" style="background: #edf2f7; color: #003366; border: 1px solid #cbd5e1; font-size: 10.5px;">
-                                    <i class="fa-solid fa-check text-success me-1"></i> Sedang Dilihat
-                                </span>
-                            @endif
-                        </div>
-                        <div class="d-flex align-items-baseline gap-2 mt-1">
-                            <h4 class="fw-bold m-0 text-dark" style="font-size: 20px;">{{ $faStats['total'] }}</h4>
-                            <span class="text-muted" style="font-size: 12px;">Total Personel</span>
-                            <span class="text-muted mx-1">&bull;</span>
-                            <span class="text-success fw-semibold" style="font-size: 12px;">{{ $faStats['aktif'] }} Aktif</span>
-                            <span class="text-muted mx-1">&bull;</span>
-                            <span class="text-secondary" style="font-size: 12px;">{{ $faStats['non_aktif'] }} Non-Aktif (Off)</span>
-                        </div>
-                    </div>
-                    <div>
-                        @if($activeCompany === 'FA/PROJECT')
-                            <span class="badge px-3 py-2 fw-semibold" style="background: #edf2f7; color: #003366; font-size: 11.5px;">
-                                Aktif
-                            </span>
-                        @else
-                            <a href="{{ route('subcont.proyek', ['company' => 'FA/PROJECT']) }}" class="btn btn-sm btn-murinda-outline px-3 fw-semibold" style="font-size: 12px;">
-                                Pilih FA <i class="fa-solid fa-chevron-right ms-1"></i>
-                            </a>
-                        @endif
-                    </div>
-                </div>
-            </div>
         </div>
     </div>
 
@@ -227,24 +141,14 @@
                                     <div class="fw-bold text-dark">{{ $p->nama }}</div>
                                     <small class="text-muted font-monospace" style="font-size: 11px;">EMP-{{ $p->company_code }}-{{ str_pad($p->id, 3, '0', STR_PAD_LEFT) }}</small>
                                 </td>
-                                <td>
-                                    <span class="badge bg-secondary px-2 py-1 font-monospace" style="font-size: 11px;">
-                                        {{ $p->company_code }}
-                                    </span>
-                                </td>
+                                <td class="text-center font-monospace">{{ $p->company_code }}</td>
                                 <td class="fw-semibold text-dark">{{ $p->posisi ?: '-' }}</td>
                                 <td class="text-center">{{ $p->tgl_masuk ? date('d/m/Y', strtotime($p->tgl_masuk)) : '-' }}</td>
                                 <td class="text-center">
-                                    <span class="badge bg-light text-dark border">
-                                        {{ $p->tgl_induction ? date('d/m/Y', strtotime($p->tgl_induction)) : ($p->tgl_masuk ? date('d/m/Y', strtotime($p->tgl_masuk)) : '-') }}
-                                    </span>
+                                    {{ $p->tgl_induction ? date('d/m/Y', strtotime($p->tgl_induction)) : ($p->tgl_masuk ? date('d/m/Y', strtotime($p->tgl_masuk)) : '-') }}
                                 </td>
                                 <td class="text-center">
-                                    @if($p->status === 'Aktif')
-                                        <span class="badge-aman"><i class="fa-solid fa-check me-1"></i> Aktif</span>
-                                    @else
-                                        <span class="badge-bahaya"><i class="fa-solid fa-xmark me-1"></i> Non-Aktif</span>
-                                    @endif
+                                    {{ $p->status }}
                                 </td>
                                 <td>
                                     <span class="fw-semibold text-dark">{{ $p->keterangan ?: ($p->domisili_alamat ?: 'Proyek Lapangan') }}</span>
@@ -252,10 +156,10 @@
                                 <td class="text-center no-print">
                                     <div class="d-flex justify-content-center gap-1">
                                         <button type="button" class="btn btn-action-view" title="Lihat Data Lengkap" onclick="showDetailProyek({{ json_encode($p) }})">
-                                            <i class="fa-solid fa-eye"></i> Lihat Data
+                                            Lihat
                                         </button>
                                         <button type="button" class="btn btn-action-edit" title="Edit Data" onclick="editProyek({{ json_encode($p) }})">
-                                            <i class="fa-solid fa-pen-to-square"></i> Edit Data
+                                            Edit
                                         </button>
                                     </div>
                                 </td>
@@ -353,35 +257,35 @@
             <div class="modal-body p-4">
                 <table class="table table-bordered table-sm mb-0">
                     <tr>
-                        <th style="width: 40%; background: #f8fafc;">No. ID / Registrasi</th>
+                        <th style="width: 40%; background: #ffffff;">No. ID / Registrasi</th>
                         <td id="detail_proyek_id" class="fw-bold text-navy"></td>
                     </tr>
                     <tr>
-                        <th style="background: #f8fafc;">Entitas Proyek</th>
+                        <th style="background: #ffffff;">Entitas Proyek</th>
                         <td id="detail_proyek_company"></td>
                     </tr>
                     <tr>
-                        <th style="background: #f8fafc;">Jabatan / Posisi</th>
+                        <th style="background: #ffffff;">Jabatan / Posisi</th>
                         <td id="detail_proyek_posisi" class="fw-semibold"></td>
                     </tr>
                     <tr>
-                        <th style="background: #f8fafc;">Status Pekerja</th>
+                        <th style="background: #ffffff;">Status Pekerja</th>
                         <td><span id="detail_proyek_status_badge"></span></td>
                     </tr>
                     <tr>
-                        <th style="background: #f8fafc;">Tanggal Masuk</th>
+                        <th style="background: #ffffff;">Tanggal Masuk</th>
                         <td id="detail_proyek_tgl_masuk"></td>
                     </tr>
                     <tr>
-                        <th style="background: #f8fafc;">Tanggal Induction</th>
+                        <th style="background: #ffffff;">Tanggal Induction</th>
                         <td id="detail_proyek_tgl_induction"></td>
                     </tr>
                     <tr id="row_detail_proyek_induction_ulang" style="display: none;">
-                        <th style="background: #f8fafc;">Induction Ulang</th>
+                        <th style="background: #ffffff;">Induction Ulang</th>
                         <td id="detail_proyek_tgl_induction_ulang" class="text-primary fw-bold"></td>
                     </tr>
                     <tr>
-                        <th style="background: #f8fafc;">Lokasi Penempatan Proyek</th>
+                        <th style="background: #ffffff;">Lokasi Penempatan Proyek</th>
                         <td id="detail_proyek_lokasi" class="fw-semibold text-dark"></td>
                     </tr>
                 </table>

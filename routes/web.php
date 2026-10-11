@@ -58,8 +58,11 @@ Route::get('/apd', [ApdController::class, 'index'])->name('apd.index');
 Route::get('/apd/create', [ApdController::class, 'create'])->name('apd.create');
 Route::post('/apd', [ApdController::class, 'store'])->name('apd.store');
 
-// Modul Cetak Form Absensi Otomatis Terintegrasi Pekerja Aktif
-Route::get('/absensi', [AbsensiController::class, 'setupForm'])->name('absensi.setup');
+// Modul Absensi Lapangan (Rekap SMT Harian, Form Absensi Cepat, Cetak Form)
+Route::get('/absensi', [AbsensiController::class, 'index'])->name('absensi.index');
+Route::get('/absensi/setup', [AbsensiController::class, 'setupForm'])->name('absensi.setup');
+Route::post('/absensi', [AbsensiController::class, 'storeFastAttendance'])->name('absensi.store');
+Route::post('/absensi/update-single', [AbsensiController::class, 'updateSingleStatus'])->name('absensi.updateSingle');
 Route::get('/absensi/print', [AbsensiController::class, 'printForm'])->name('absensi.print');
 
 

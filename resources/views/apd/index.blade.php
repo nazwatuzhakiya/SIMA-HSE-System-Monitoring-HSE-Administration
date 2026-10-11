@@ -50,9 +50,9 @@
             <div class="card-kpi-uniform p-3 h-100">
                 <div class="d-flex justify-content-between align-items-center">
                     <div>
-                        <div class="text-muted small fw-bold text-uppercase" style="font-size: 11px;">Sepatu Safety</div>
-                        <h3 class="fw-bold m-0" style="color: #003366;">{{ $apdStats['Sepatu Safety'] }} Pcs</h3>
-                        <div class="text-muted small mt-1" style="font-size: 11px;">Pelindung Kaki Konstruksi</div>
+                        <div class="text-muted small fw-bold text-uppercase" style="font-size: 11px;">Sepatu Safety & Harness</div>
+                        <h3 class="fw-bold m-0" style="color: #003366;">{{ $apdStats['Sepatu Safety'] + $apdStats['Body Harness'] }} Pcs</h3>
+                        <div class="text-muted small mt-1" style="font-size: 11px;">Sepatu: {{ $apdStats['Sepatu Safety'] }} &bull; Harness: {{ $apdStats['Body Harness'] }}</div>
                     </div>
                     <div class="p-3 rounded" style="background: #edf2f7; color: #003366;">
                         <i class="fa-solid fa-shoe-prints fa-2x"></i>
@@ -61,50 +61,89 @@
             </div>
         </div>
 
+        <!-- KPI Monitoring Pengambilan APD: Aman (Biru) vs Waspada Penimbunan (Merah) -->
         <div class="col-xl-3 col-sm-6">
-            <div class="card-kpi-uniform p-3 h-100">
-                <div class="d-flex justify-content-between align-items-center">
+            @php
+                $isDanger = $topApdTaker && ($topApdTaker->is_danger ?? false);
+                $cardBorder = $isDanger ? '#dc2626' : '#003366';
+                $cardBg = $isDanger ? '#fff5f5' : '#f0f7ff';
+                $textClr = $isDanger ? 'text-danger' : 'text-primary';
+                $badgeBg = $isDanger ? 'bg-danger text-white' : 'bg-primary text-white';
+            @endphp
+            <div class="card-kpi-uniform p-3 h-100" style="border-top: 3px solid {{ $cardBorder }} !important; background: {{ $cardBg }};">
+                <div class="d-flex justify-content-between align-items-start">
                     <div>
-                        <div class="text-muted small fw-bold text-uppercase" style="font-size: 11px;">Body Harness</div>
-                        <h3 class="fw-bold m-0" style="color: #003366;">{{ $apdStats['Body Harness'] }} Pcs</h3>
-                        <div class="text-muted small mt-1" style="font-size: 11px;">Bekerja di Ketinggian</div>
+                        @if($isDanger)
+                            <div class="text-danger small fw-bold text-uppercase" style="font-size: 11px;">
+                                {{ $topApdTaker ? ($topApdTaker->status_label ?? 'Waspada Penimbunan APD') : 'Waspada Penimbunan APD' }}
+                            </div>
+                            <h4 class="fw-bold m-0 text-danger" style="font-size: 17px; line-height: 1.2;">
+                                {{ $topApdTaker->nama_personel }}
+                            </h4>
+                            <div class="text-muted small font-monospace mt-1" style="font-size: 11px;">
+                                {{ $topApdTaker->departemen_subcont }}
+                            </div>
+                            <div class="mt-1 d-flex flex-column gap-1">
+                                <div>
+                                    <span class="badge bg-danger text-white fw-bold px-2 py-0.5" style="font-size: 11px;">
+                                        {{ $topApdTaker->total_apd }} Pcs ({{ $topApdTaker->total_transaksi }}x ambil)
+                                    </span>
+                                </div>
+                                @if(!empty($topApdTaker->status_note))
+                                    <div class="text-danger small" style="font-size: 10.5px; line-height: 1.2;">
+                                        {{ $topApdTaker->status_note }}
+                                    </div>
+                                @endif
+                            </div>
+                        @else
+                            <div class="text-primary small fw-bold text-uppercase" style="font-size: 11px;">
+                                Status Distribusi APD
+                            </div>
+                            <h4 class="fw-bold m-0 text-primary" style="font-size: 17px; line-height: 1.2;">
+                                Distribusi APD Aman
+                            </h4>
+                            <div class="mt-2 text-muted" style="font-size: 11.5px; line-height: 1.35;">
+                                <i class="fa-solid fa-circle-check text-success me-1"></i>
+                                Aman dan tidak terindikasi adanya penimbunan.
+                            </div>
+                        @endif
                     </div>
-                    <div class="p-3 rounded" style="background: #edf2f7; color: #003366;">
-                        <i class="fa-solid fa-person-falling fa-2x"></i>
+                    <div class="p-2.5 rounded bg-white {{ $textClr }} shadow-sm border" style="border-color: {{ $cardBorder }} !important;">
+                        <i class="fa-solid {{ $isDanger ? 'fa-triangle-exclamation' : 'fa-shield-halved' }} fa-2x"></i>
                     </div>
                 </div>
             </div>
         </div>
     </div>
 
-    <!-- Toolbar Aksi Utama: Tombol Input APD Baru -->
+    @canwrite
+    <!-- Toolbar Aksi Utama: Tombol Input APD Baru (Khusus Admin) -->
     <div class="card-custom mb-3 no-print">
         <div class="card-body p-3">
             <div class="d-flex flex-wrap justify-content-between align-items-center gap-2 mb-3 pb-3 border-bottom">
                 <div class="d-flex align-items-center gap-2">
                     <h5 class="fw-bold mb-0" style="color: #003366;">
-                        <i class="fa-solid fa-boxes-stacked me-1 text-primary"></i> Rekap Riwayat Distribusi APD
+                        Rekap Riwayat Distribusi APD
                     </h5>
                     <span class="badge px-2.5 py-1 font-monospace" style="background: #edf2f7; color: #003366; border: 1px solid #cbd5e1;">
                         {{ $logs->count() }} Transaksi
                     </span>
                 </div>
                 <div class="d-flex gap-2">
-                    <!-- Tombol Utama: Hanya 1 Tombol Input Pengambilan APD Baru Pindah Form -->
-                    <a href="{{ route('apd.create') }}" class="btn btn-gradient-blue btn-sm fw-bold px-3 shadow-sm" title="Formulir Input Penyerahan APD Baru">
-                        <i class="fa-solid fa-cart-plus me-1"></i> Input Pengambilan APD Baru
+                    <a href="{{ route('apd.create') }}" class="btn btn-murinda-primary btn-sm fw-bold px-3 shadow-sm" title="Formulir Input Penyerahan APD Baru">
+                        Input Pengambilan APD Baru
                     </a>
-                    <button type="button" onclick="exportTableToExcel('table-apd', 'Log_Distribusi_APD_Murinda')" class="btn btn-excel btn-sm px-3 fw-bold">
-                        <i class="fa-solid fa-file-excel me-1"></i> Excel
+                    <button type="button" onclick="exportTableToExcel('table-apd', 'Log_Distribusi_APD_Murinda')" class="btn btn-excel btn-sm px-3 fw-bold shadow-sm">
+                        Ekspor Excel
                     </button>
-                    <button type="button" class="btn btn-light border btn-sm px-3" onclick="window.print()">
-                        <i class="fa-solid fa-print me-1"></i> Cetak
+                    <button type="button" class="btn btn-pdf btn-sm px-3 fw-bold shadow-sm" onclick="window.print()">
+                        Cetak PDF
                     </button>
                 </div>
             </div>
 
-            <!-- Filter Bar Transaksi APD -->
-            <form action="{{ route('apd.index') }}" method="GET" class="row g-2 align-items-end">
+            <!-- Filter Bar Transaksi APD (Khusus Admin) -->
+            <form action="{{ route('apd.index') }}" method="GET" class="row g-2 align-items-end" id="form_filter_apd">
                 <div class="col-lg-3 col-md-4">
                     <label class="form-label mb-1 fw-semibold text-dark" style="font-size: 12px;">Subcont / Departemen:</label>
                     <select name="departemen" class="form-select form-select-sm" onchange="this.form.submit()">
@@ -118,15 +157,15 @@
                 <div class="col-lg-4 col-md-4">
                     <label class="form-label mb-1 fw-semibold text-dark" style="font-size: 12px;">Rentang Tanggal Pengambilan:</label>
                     <div class="input-group input-group-sm">
-                        <input type="text" name="start_date" value="{{ request('start_date') }}" class="form-control flatpickr-date" placeholder="DD/MM/YYYY">
+                        <input type="text" name="start_date" id="filter_start_date_apd" value="{{ request('start_date') }}" class="form-control flatpickr-date" placeholder="DD/MM/YYYY" onchange="this.form.submit()">
                         <span class="input-group-text bg-light">s/d</span>
-                        <input type="text" name="end_date" value="{{ request('end_date') }}" class="form-control flatpickr-date" placeholder="DD/MM/YYYY">
+                        <input type="text" name="end_date" id="filter_end_date_apd" value="{{ request('end_date') }}" class="form-control flatpickr-date" placeholder="DD/MM/YYYY" onchange="this.form.submit()">
                     </div>
                 </div>
 
                 <div class="col-lg-3 col-md-4">
                     <label class="form-label mb-1 fw-semibold text-dark" style="font-size: 12px;">Cari Nama / Jenis APD:</label>
-                    <input type="text" name="search" value="{{ request('search') }}" class="form-control form-control-sm" placeholder="Ketik nama personel / APD...">
+                    <input type="text" name="search" id="filter_search_apd" value="{{ request('search') }}" class="form-control form-control-sm" placeholder="Ketik nama personel / APD...">
                 </div>
 
                 <div class="col-lg-2 col-md-12 d-flex gap-1">
@@ -142,9 +181,111 @@
             </form>
         </div>
     </div>
+    @endcanwrite
 
-    <!-- Tabel Riwayat APD Lengkap -->
-    <div class="card-custom">
+    @readonly
+    <!-- ======================================================== -->
+    <!-- GRAFIK & STATISTIK DISTRIBUSI APD (HSE MANAGER)          -->
+    <!-- ======================================================== -->
+    <div class="row g-3 mb-4 no-print">
+        <!-- Grafik 1: Bagian / Departemen Permintaan APD Terbanyak -->
+        <div class="col-lg-6">
+            <div class="card-custom h-100">
+                <div class="card-header-custom d-flex justify-content-between align-items-center">
+                    <div>
+                        <h6 class="fw-bold m-0" style="color: #003366;">
+                            <i class="fa-solid fa-chart-column me-2 text-primary"></i> Permintaan APD per Bagian / Departemen
+                        </h6>
+                        <small class="text-muted" style="font-size: 11px;">Alokasi APD terbesar per departemen & subkontraktor</small>
+                    </div>
+                </div>
+                <div class="card-body p-3">
+                    <canvas id="chartDeptApd" style="max-height: 230px; width: 100%;"></canvas>
+                </div>
+            </div>
+        </div>
+
+        <!-- Grafik 2: Jenis APD yang Paling Banyak Diminta -->
+        <div class="col-lg-6">
+            <div class="card-custom h-100">
+                <div class="card-header-custom d-flex justify-content-between align-items-center">
+                    <div>
+                        <h6 class="fw-bold m-0" style="color: #003366;">
+                            <i class="fa-solid fa-chart-pie me-2 text-primary"></i> Jenis APD Paling Banyak Diminta
+                        </h6>
+                        <small class="text-muted" style="font-size: 11px;">Proporsi distribusi perlengkapan K3 pekerja</small>
+                    </div>
+                </div>
+                <div class="card-body p-3">
+                    <canvas id="chartTypeApd" style="max-height: 230px; width: 100%;"></canvas>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- 10 Nama Pekerja Tersering Mengajukan APD & Ringkasan Distribusi APD -->
+    <div class="card-custom mb-4 no-print">
+        <div class="card-header-custom d-flex flex-wrap justify-content-between align-items-center gap-2">
+            <div>
+                <h6 class="fw-bold m-0" style="color: #003366;">
+                    <i class="fa-solid fa-ranking-star me-2 text-danger"></i> 10 Nama Pekerja Tersering Mengajukan APD
+                </h6>
+                <small class="text-muted" style="font-size: 11px;">Peringkat frekuensi pengambilan APD pekerja & riwayat distribusi</small>
+            </div>
+            <div class="d-flex align-items-center gap-2">
+                <div class="input-group input-group-sm" style="width: 220px;">
+                    <span class="input-group-text bg-white text-muted"><i class="fa-solid fa-magnifying-glass"></i></span>
+                    <input type="text" id="filter_nama_top_apd" class="form-control" placeholder="Filter nama pekerja...">
+                </div>
+                <span class="badge" style="background: #003366; color: #fff; font-size: 10.5px;">Top 10 Pengaju APD</span>
+            </div>
+        </div>
+        <div class="card-body p-0">
+            <div class="table-responsive">
+                <table class="table table-custom table-hover m-0 align-middle" id="table-top-apd">
+                    <thead>
+                        <tr>
+                            <th class="text-center" style="width: 50px;">NO</th>
+                            <th style="min-width: 180px;">NAMA PEKERJA</th>
+                            <th class="text-center" style="min-width: 140px;">DEPARTEMEN / SUBCONT</th>
+                            <th class="text-center" style="min-width: 130px;">FREKUENSI AMBIL</th>
+                            <th class="text-center" style="min-width: 110px;">TOTAL APD</th>
+                            <th class="text-center" style="width: 140px;">AKSI</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @forelse($top10Requesters ?? [] as $tIdx => $tReq)
+                            <tr>
+                                <td class="text-center fw-bold text-muted">{{ $tIdx + 1 }}</td>
+                                <td class="fw-bold text-dark">{{ $tReq->nama_personel }}</td>
+                                <td class="text-center font-monospace">{{ $tReq->departemen_subcont }}</td>
+                                <td class="text-center fw-semibold text-dark">
+                                    {{ $tReq->total_transaksi }}x Pengambilan
+                                </td>
+                                <td class="text-center fw-bold text-primary">
+                                    {{ $tReq->total_apd }} Pcs
+                                </td>
+                                <td class="text-center">
+                                    <button type="button" class="btn btn-sm btn-outline-primary py-1 px-2.5 fw-semibold"
+                                            onclick="showRiwayatApd('{{ addslashes($tReq->nama_personel) }}', '{{ addslashes($tReq->departemen_subcont) }}')">
+                                        <i class="fa-solid fa-receipt text-danger me-1"></i> Lihat Riwayat
+                                    </button>
+                                </td>
+                            </tr>
+                        @empty
+                            <tr>
+                                <td colspan="6" class="text-center py-4 text-muted">Belum ada catatan pengambilan APD.</td>
+                            </tr>
+                        @endforelse
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+    @endreadonly
+
+    <!-- Tabel Riwayat APD Lengkap (Disembunyikan dari Tampilan HSE Manager) -->
+    <div class="card-custom @readonly d-none @endreadonly">
         <div class="card-body p-0 table-responsive">
             <table class="table table-custom align-middle mb-0" id="table-apd">
                 <thead class="align-middle">
@@ -169,17 +310,9 @@
                             <td class="fw-bold text-dark">
                                 {{ $l->nama_personel }}
                             </td>
-                            <td class="text-center">
-                                <span class="badge px-2.5 py-1 font-monospace" style="background: #edf2f7; color: #003366; border: 1px solid #cbd5e1;">
-                                    {{ $l->departemen_subcont }}
-                                </span>
-                            </td>
-                            <td class="fw-bold" style="color: #003366;">{{ $l->jenis_apd }}</td>
-                            <td class="text-center">
-                                <span class="badge px-2 py-1" style="background: #edf2f7; color: #003366; border: 1px solid #cbd5e1;">
-                                    {{ $l->jumlah }} Pcs
-                                </span>
-                            </td>
+                            <td class="text-center font-monospace">{{ $l->departemen_subcont }}</td>
+                            <td class="fw-bold text-dark">{{ $l->jenis_apd }}</td>
+                            <td class="text-center">{{ $l->jumlah }} Pcs</td>
                             <td class="small text-muted">{{ $l->keterangan ?: '-' }}</td>
                             <td class="text-center no-print">
                                 <button type="button" class="btn btn-sm btn-outline-primary py-1 px-2 fw-semibold"
@@ -200,7 +333,6 @@
             </table>
         </div>
     </div>
-
 </div>
 
 <!-- ======================================================== -->
@@ -320,11 +452,7 @@
                         <td class="text-center fw-bold text-muted">${idx + 1}</td>
                         <td class="text-center fw-semibold text-dark">${escapeModalHtml(formattedDate)}</td>
                         <td class="fw-bold" style="color: #003366;">${escapeModalHtml(item.jenis_apd)}</td>
-                        <td class="text-center">
-                            <span class="badge px-2 py-1" style="background: #edf2f7; color: #003366; border: 1px solid #cbd5e1;">
-                                ${item.jumlah} Pcs
-                            </span>
-                        </td>
+                        <td class="text-center">${item.jumlah} Pcs</td>
                         <td class="small text-muted">${escapeModalHtml(item.keterangan || '-')}</td>
                     </tr>
                 `;
@@ -617,6 +745,77 @@
         apdEnd?.addEventListener('input', applyLiveApdFilter);
         apdEnd?.addEventListener('change', applyLiveApdFilter);
         apdDept?.addEventListener('change', applyLiveApdFilter);
+
+        // Instant Filter Nama Pekerja pada Ringkasan Top Pengaju APD
+        const filterTopApd = document.getElementById('filter_nama_top_apd');
+        if (filterTopApd) {
+            filterTopApd.addEventListener('input', function() {
+                const term = (this.value || '').toLowerCase().trim();
+                const rows = document.querySelectorAll('#table-top-apd tbody tr');
+                rows.forEach(r => {
+                    if (r.cells.length < 5) return;
+                    const nameText = (r.cells[1]?.innerText || '').toLowerCase();
+                    r.style.display = (!term || nameText.includes(term)) ? '' : 'none';
+                });
+            });
+        }
+
+        @readonly
+        // Chart Permintaan APD per Bagian / Departemen untuk HSE Manager
+        const ctxDeptApd = document.getElementById('chartDeptApd');
+        if (ctxDeptApd && typeof Chart !== 'undefined') {
+            const deptLabels = {!! json_encode(array_column(($deptApdChart ?? collect())->toArray(), 'departemen_subcont')) !!};
+            const deptData = {!! json_encode(array_column(($deptApdChart ?? collect())->toArray(), 'total_apd')) !!};
+
+            new Chart(ctxDeptApd, {
+                type: 'bar',
+                data: {
+                    labels: deptLabels,
+                    datasets: [{
+                        label: 'Total APD Diminta (Pcs)',
+                        data: deptData,
+                        backgroundColor: '#003366',
+                        borderRadius: 4
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: { legend: { display: false } },
+                    scales: {
+                        y: { beginAtZero: true, title: { display: true, text: 'Jumlah (Pcs)' } }
+                    }
+                }
+            });
+        }
+
+        // Chart Jenis APD Paling Banyak Diminta untuk HSE Manager
+        const ctxTypeApd = document.getElementById('chartTypeApd');
+        if (ctxTypeApd && typeof Chart !== 'undefined') {
+            const typeLabels = {!! json_encode(array_keys($apdTypeChart ?? [])) !!};
+            const typeData = {!! json_encode(array_values($apdTypeChart ?? [])) !!};
+
+            new Chart(ctxTypeApd, {
+                type: 'doughnut',
+                data: {
+                    labels: typeLabels,
+                    datasets: [{
+                        data: typeData,
+                        backgroundColor: [
+                            '#003366', '#0ea5e9', '#10b981', '#f59e0b', '#ef4444', '#8b5cf6', '#64748b', '#06b6d4'
+                        ]
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: { position: 'right', labels: { boxWidth: 12, font: { size: 10.5 } } }
+                    }
+                }
+            });
+        }
+        @endreadonly
     });
 </script>
 @endpush

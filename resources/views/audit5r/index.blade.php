@@ -115,12 +115,12 @@
                     <tr>
                         <td class="text-center fw-bold">{{ $item['no'] }}</td>
                         <td class="fw-bold text-dark">{{ $item['nama'] }}</td>
-                        <td class="text-center"><span class="badge bg-primary px-2">{{ $item['poin'] }}</span></td>
+                        <td class="text-center">{{ $item['poin'] }}</td>
                         <td class="text-center fw-bold">8</td>
                         <td class="text-center fw-bold">9</td>
                         <td class="text-center fw-bold">8</td>
                         <td class="text-center fw-bold">9</td>
-                        <td class="text-center fw-bold text-success" style="background: #f0fdf4;">8.5 / 10</td>
+                        <td class="text-center fw-bold text-dark">8.5 / 10</td>
                         <td class="small text-muted">Bantalan material & arde tertata rapi, sampah terpilah dengan baik.</td>
                     </tr>
                     @endforeach
@@ -128,12 +128,12 @@
                 <tfoot class="table-light fw-bold">
                     <tr>
                         <td colspan="3" class="text-end text-uppercase">Total Persentase Nilai Akhir:</td>
-                        <td class="text-center text-primary">85%</td>
-                        <td class="text-center text-primary">88%</td>
-                        <td class="text-center text-primary">84%</td>
-                        <td class="text-center text-primary">89%</td>
-                        <td class="text-center text-success fs-6" style="background: #dcfce7;">86.5%</td>
-                        <td class="text-center text-success">STATUS: MEMENUHI STANDAR (KANDIDAT JUARA)</td>
+                        <td class="text-center text-dark">85%</td>
+                        <td class="text-center text-dark">88%</td>
+                        <td class="text-center text-dark">84%</td>
+                        <td class="text-center text-dark">89%</td>
+                        <td class="text-center text-dark">86.5%</td>
+                        <td class="text-center text-dark">STATUS: MEMENUHI STANDAR (KANDIDAT JUARA)</td>
                     </tr>
                 </tfoot>
             </table>
@@ -172,10 +172,8 @@
                             <td class="text-center fw-bold">{{ $a->score_resik }}</td>
                             <td class="text-center fw-bold">{{ $a->score_rawat }}</td>
                             <td class="text-center fw-bold">{{ $a->score_rajin }}</td>
-                            <td class="text-center">
-                                <span class="badge {{ $a->total_percentage >= 80 ? 'bg-success' : 'bg-warning text-dark' }} px-3 py-1">
-                                    {{ number_format($a->total_percentage, 1) }}%
-                                </span>
+                            <td class="text-center font-monospace">
+                                {{ number_format($a->total_percentage, 1) }}%
                             </td>
                             <td class="small text-muted">{{ $a->catatan ?: '-' }}</td>
                         </tr>

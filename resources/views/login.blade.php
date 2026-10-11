@@ -157,7 +157,7 @@
                                name="email"
                                id="input-username"
                                class="form-control"
-                               placeholder="email / NIP"
+                               placeholder="Username / Email / NIP"
                                autocomplete="username"
                                required>
                         <button type="button" class="toggle-password" onclick="toggleUsername()" title="Lihat / Sembunyikan Username">

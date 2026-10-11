@@ -100,9 +100,9 @@
                             <td>{{ $idx + 1 }}</td>
                             <td>{{ date('d/m/Y', strtotime($r->tanggal_pengambilan)) }}</td>
                             <td class="fw-bold text-dark">{{ $r->nama_pegawai }}</td>
-                            <td><span class="badge bg-warning text-dark">{{ $r->keluhan }}</span></td>
-                            <td class="fw-semibold text-primary">{{ $r->nama_obat }}</td>
-                            <td><span class="badge bg-secondary">{{ $r->jumlah_obat }}</span></td>
+                            <td>{{ $r->keluhan }}</td>
+                            <td class="fw-semibold text-dark">{{ $r->nama_obat }}</td>
+                            <td>{{ $r->jumlah_obat }}</td>
                         </tr>
                     @empty
                         <tr>

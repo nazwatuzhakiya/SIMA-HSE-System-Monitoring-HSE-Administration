@@ -33,14 +33,14 @@ class HseDepartmentService
     public static function getPlantSubconts(): array
     {
         return [
-            'SUB.SBL' => 'SUB.SBL (SURYA BAROKAH LESTARI)',
-            'SUB.DKP' => 'SUB.DKP',
-            'SUB.SUM' => 'SUB.SUM',
+            'SUB.DKP' => 'SUB.DKP (DIRA KARYA PRATAMA)',
+            'SUB.SUM' => 'SUB.SUM (SHAKA USAHA MANDIRI)',
+            'SUB.AGS' => 'SUB.AGS (ARTHA GUNA SEJAHTERA)',
+            'SUB.PKN' => 'SUB.PKN (PARWATA KANDAGA NONOMAN)',
             'SUB.CM' => 'SUB.CM (CITRA MANDIRI)',
-            'SUB.PKN' => 'SUB.PKN',
-            'SUB.NAGA CIPTA' => 'SUB.NAGA CIPTA',
-            'SUB.BM' => 'SUB.BM',
-            'SUB.AGS' => 'SUB.AGS',
+            'SUB.NAGA CIPTA' => 'SUB.NC (NAGA CIPTA)',
+            'SUB.BM' => 'SUB.BM (BANGKIT MANDIRI)',
+            'SUB.SBL' => 'SUB.SBL (SURYA BAROKAH LESTARI)',
         ];
     }
 
@@ -110,6 +110,17 @@ class HseDepartmentService
     }
 
     /**
+     * Mendapatkan nama resmi entitas berdasarkan kode
+     */
+    public static function getOfficialName(?string $code): string
+    {
+        if (!$code) return '-';
+        $normalized = self::normalizeCode($code);
+        $all = self::getAllOfficialEntities();
+        return $all[$normalized] ?? ($all[$code] ?? $code);
+    }
+
+    /**
      * Periksa apakah entitas ini adalah Tamu Khusus / FA non-manpower
      * Sesuai instruksi: "FA, KLIEN, VISITOR, dan PKL itu hanya dicatat di monitoring saja, ga dimasukin ke manpower"
      */
@@ -151,18 +162,32 @@ class HseDepartmentService
 
         $map = [
             'DKP' => 'SUB.DKP',
+            'DIRA KARYA PRATAMA' => 'SUB.DKP',
+            'PT DIRA KARYA PRATAMA' => 'SUB.DKP',
             'SUM' => 'SUB.SUM',
             'SUB.SUM.' => 'SUB.SUM',
+            'SHAKA USAHA MANDIRI' => 'SUB.SUM',
+            'PT SHAKA USAHA MANDIRI' => 'SUB.SUM',
             'AGS' => 'SUB.AGS',
+            'ARTHA GUNA SEJAHTERA' => 'SUB.AGS',
+            'PT ARTHA GUNA SEJAHTERA' => 'SUB.AGS',
             'PKN' => 'SUB.PKN',
+            'PARWATA KANDAGA NONOMAN' => 'SUB.PKN',
+            'PT PARWATA KANDAGA NONOMAN' => 'SUB.PKN',
             'CM' => 'SUB.CM',
             'CITRA MANDIRI' => 'SUB.CM',
+            'PT CITRA MANDIRI' => 'SUB.CM',
             'SUB.CITRA MANDIRI' => 'SUB.CM',
             'NC' => 'SUB.NAGA CIPTA',
+            'SUB.NC' => 'SUB.NAGA CIPTA',
             'NAGA CIPTA' => 'SUB.NAGA CIPTA',
+            'PT NAGA CIPTA' => 'SUB.NAGA CIPTA',
             'BM' => 'SUB.BM',
+            'BANGKIT MANDIRI' => 'SUB.BM',
+            'PT BANGKIT MANDIRI' => 'SUB.BM',
             'SBL' => 'SUB.SBL',
             'SURYA BAROKAH LESTARI' => 'SUB.SBL',
+            'PT SURYA BAROKAH LESTARI' => 'SUB.SBL',
             'BUILT UP 9' => 'JT9',
             'BUILT UP' => 'JT9',
             'SD' => 'STEEL DETAILING',
@@ -450,6 +475,119 @@ class HseDepartmentService
             'total_man_days' => $totalManDays,
             'total_man_hours' => $totalManHours,
             'breakdown' => $breakdown,
+        ];
+    }
+
+    /**
+     * Menghitung persentase total kehadiran SMT per minggu dan mendeteksi persentase terendah
+     *
+     * @param string|null $referenceDate (default: hari ini)
+     * @param int $weeksCount (jumlah minggu dianalisis, default: 4 minggu)
+     * @return array
+     */
+    public static function calculateWeeklySmtLowest(?string $referenceDate = null, int $weeksCount = 4): array
+    {
+        $ref = $referenceDate ? \Carbon\Carbon::parse($referenceDate) : \Carbon\Carbon::now();
+        $weeks = [];
+        $lowestWeek = null;
+        $lowestDeptOverall = null;
+
+        // Ambil data per minggu ke belakang (termasuk minggu saat ini)
+        for ($i = $weeksCount - 1; $i >= 0; $i--) {
+            $wStart = $ref->copy()->subWeeks($i)->startOfWeek()->format('Y-m-d');
+            $wEnd = $ref->copy()->subWeeks($i)->endOfWeek()->format('Y-m-d');
+            $wLabel = \Carbon\Carbon::parse($wStart)->format('d M') . ' - ' . \Carbon\Carbon::parse($wEnd)->format('d M Y');
+
+            $records = \App\Models\Absensi::whereBetween('tanggal', [$wStart, $wEnd])
+                ->where(function ($q) {
+                    $q->where('jenis_kegiatan', 'SMT')
+                      ->orWhere('jenis_kegiatan', 'like', '%SMT%');
+                })
+                ->get();
+
+            $hadir = $records->where('status_kehadiran', 'Hadir')->count();
+            $telat = $records->where('status_kehadiran', 'Telat')->count();
+            $tidakHadir = $records->whereNotIn('status_kehadiran', ['Hadir', 'Telat'])->count();
+            $totalRecorded = $records->count();
+            $harusnyaHadir = $hadir + $telat;
+
+            $persentaseTotal = ($harusnyaHadir > 0) ? round(($hadir / $harusnyaHadir) * 100, 1) : null;
+
+            // Hitung breakdown per departemen di minggu ini
+            $deptStats = [];
+            $grouped = $records->groupBy(function ($item) {
+                return self::normalizeCode($item->departemen_subcont);
+            });
+
+            $lowestDeptInWeek = null;
+            foreach ($grouped as $deptCode => $dRecords) {
+                $dHadir = $dRecords->where('status_kehadiran', 'Hadir')->count();
+                $dTelat = $dRecords->where('status_kehadiran', 'Telat')->count();
+                $dHarus = $dHadir + $dTelat;
+                if ($dHarus > 0) {
+                    $dPct = round(($dHadir / $dHarus) * 100, 1);
+                    $item = [
+                        'code' => $deptCode,
+                        'name' => self::getOfficialName($deptCode),
+                        'hadir' => $dHadir,
+                        'telat' => $dTelat,
+                        'harusnya_hadir' => $dHarus,
+                        'persentase' => $dPct,
+                    ];
+                    $deptStats[] = $item;
+
+                    if ($lowestDeptInWeek === null || $dPct < $lowestDeptInWeek['persentase']) {
+                        $lowestDeptInWeek = $item;
+                    }
+                    if ($lowestDeptOverall === null || $dPct < $lowestDeptOverall['persentase']) {
+                        $lowestDeptOverall = array_merge($item, ['week_label' => $wLabel]);
+                    }
+                }
+            }
+
+            $weekItem = [
+                'week_index' => $i,
+                'is_current_week' => ($i === 0),
+                'start_date' => $wStart,
+                'end_date' => $wEnd,
+                'label' => $wLabel,
+                'total_recorded' => $totalRecorded,
+                'hadir' => $hadir,
+                'telat' => $telat,
+                'tidak_hadir' => $tidakHadir,
+                'harusnya_hadir' => $harusnyaHadir,
+                'persentase_total' => $persentaseTotal,
+                'lowest_dept' => $lowestDeptInWeek,
+            ];
+
+            $weeks[] = $weekItem;
+
+            if ($persentaseTotal !== null) {
+                if ($lowestWeek === null || $persentaseTotal < $lowestWeek['persentase_total']) {
+                    $lowestWeek = $weekItem;
+                }
+            }
+        }
+
+        // Tentukan persentase total terendah mingguan
+        $lowestPercentage = $lowestWeek ? $lowestWeek['persentase_total'] : 0.0;
+        $lowestWeekLabel = $lowestWeek ? $lowestWeek['label'] : 'Belum ada data SMT';
+        $lowestWeekHadir = $lowestWeek ? $lowestWeek['hadir'] : 0;
+        $lowestWeekHarus = $lowestWeek ? $lowestWeek['harusnya_hadir'] : 0;
+        $lowestDeptName = ($lowestWeek && $lowestWeek['lowest_dept']) ? $lowestWeek['lowest_dept']['name'] : '-';
+        $lowestDeptPct = ($lowestWeek && $lowestWeek['lowest_dept']) ? $lowestWeek['lowest_dept']['persentase'] : null;
+
+        return [
+            'lowest_percentage' => $lowestPercentage,
+            'lowest_week_label' => $lowestWeekLabel,
+            'lowest_week_hadir' => $lowestWeekHadir,
+            'lowest_week_harus' => $lowestWeekHarus,
+            'lowest_dept_name' => $lowestDeptName,
+            'lowest_dept_percentage' => $lowestDeptPct,
+            'lowest_dept_overall' => $lowestDeptOverall,
+            'lowest_week' => $lowestWeek,
+            'weeks' => $weeks,
+            'has_data' => ($lowestWeek !== null),
         ];
     }
 }

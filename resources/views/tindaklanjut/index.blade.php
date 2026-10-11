@@ -60,16 +60,8 @@
                             <td class="fw-semibold text-dark">{{ $r->nama_pelapor ?: 'Anonim' }}</td>
                             <td class="small">{{ $r->area_lokasi }}</td>
                             <td class="small" style="max-width: 250px;">{{ $r->deskripsi }}</td>
-                            <td>
-                                <span class="badge {{ $r->tingkat_risiko == 'Tinggi' ? 'badge-bahaya' : ($r->tingkat_risiko == 'Sedang' ? 'badge-warning' : 'badge-aman') }}">
-                                    {{ $r->tingkat_risiko }}
-                                </span>
-                            </td>
-                            <td>
-                                <span class="badge {{ $r->status == 'Selesai' ? 'bg-success' : ($r->status == 'Diproses' ? 'bg-warning text-dark' : 'bg-secondary') }} px-3 py-1 fs-6">
-                                    {{ $r->status }}
-                                </span>
-                            </td>
+                            <td>{{ $r->tingkat_risiko }}</td>
+                            <td>{{ $r->status }}</td>
                             <td>
                                 @if($r->tindak_lanjut)
                                     <span class="small text-dark">{{ $r->tindak_lanjut }}</span>

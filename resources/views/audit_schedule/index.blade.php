@@ -107,7 +107,7 @@
                     <tr>
                         <td class="text-center fw-bold">{{ $index + 1 }}</td>
                         <td class="fw-bold text-navy">{{ $s->departemen }}</td>
-                        <td><i class="fa-solid fa-user-tie me-1 text-primary"></i> {{ $s->lead_auditor }}</td>
+                        <td>{{ $s->lead_auditor }}</td>
                         <td>{{ $s->auditor }}</td>
                         <td>{{ $s->wakil_auditor ?: '-' }}</td>
                         <td class="text-center text-nowrap" style="font-size: 11px;">{{ $s->jan_date ?: '-' }}</td>

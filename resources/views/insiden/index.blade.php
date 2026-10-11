@@ -40,21 +40,13 @@
                             <td class="fw-bold text-danger">{{ $in->kode_insiden }}</td>
                             <td>{{ date('d/m/Y', strtotime($in->tanggal)) }}</td>
                             <td class="fw-semibold">{{ $in->lokasi }}</td>
-                            <td>
-                                <span class="badge {{ $in->kategori == 'LTI' ? 'badge-bahaya' : ($in->kategori == 'First Aid' ? 'badge-warning' : 'badge-aman') }}">
-                                    {{ $in->kategori }}
-                                </span>
-                            </td>
-                            <td><span class="badge bg-light text-dark border">{{ $in->nama_korban ?: 'Tidak Ada Korban' }}</span></td>
+                            <td>{{ $in->kategori }}</td>
+                            <td>{{ $in->nama_korban ?: 'Tidak Ada Korban' }}</td>
                             <td class="small">{{ $in->nama_saksi ?: '-' }}</td>
                             <td class="small fw-semibold">{{ $in->pj_departemen ?: '-' }}</td>
                             <td class="small">{{ $in->deskripsi_kejadian }}</td>
                             <td class="small text-muted">{{ $in->tindak_lanjut ?: '-' }}</td>
-                            <td>
-                                <span class="badge {{ $in->status == 'Closed' ? 'bg-success' : 'bg-danger' }}">
-                                    {{ $in->status }}
-                                </span>
-                            </td>
+                            <td>{{ $in->status }}</td>
                         </tr>
                     @empty
                         <tr>

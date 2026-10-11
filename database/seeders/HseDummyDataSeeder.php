@@ -239,14 +239,14 @@ class HseDummyDataSeeder extends Seeder
                 'nama' => $nama,
                 'tgl_lahir' => $tglLahir,
                 'company_code' => 'ENT',
-                'plant_location' => 'Proyek / Konstruksi Luar',
+                'plant_location' => 'Plant Kalijati Subang',
                 'tgl_masuk' => $tglMasuk,
                 'tgl_induction' => $tglInduction,
                 'posisi' => $entPositions[$i],
                 'status' => 'Aktif',
-                'domisili_alamat' => 'Basecamp Proyek Konstruksi Baja',
-                'domisili_kota' => 'Cikarang',
-                'keterangan' => 'Pekerja Konstruksi Lapangan ENT',
+                'domisili_alamat' => 'Plant Kalijati Subang',
+                'domisili_kota' => 'Subang',
+                'keterangan' => 'Plant Kalijati Subang',
             ]);
 
             // ENT MASUK KE MANPOWER PROYEK TERSENDIRI
@@ -258,7 +258,7 @@ class HseDummyDataSeeder extends Seeder
                     'tgl_lahir' => $sc->tgl_lahir,
                     'tgl_induction' => $sc->tgl_induction ?: $sc->tgl_masuk,
                     'departemen' => 'ENT',
-                    'plant_location' => 'Proyek / Konstruksi Luar',
+                    'plant_location' => 'Plant Kalijati Subang',
                     'jabatan' => $sc->posisi,
                     'status' => $sc->status,
                     'apd_helmet_issued' => true,
@@ -289,14 +289,14 @@ class HseDummyDataSeeder extends Seeder
                 'nama' => $nama,
                 'tgl_lahir' => $tglLahir,
                 'company_code' => 'FA/PROJECT',
-                'plant_location' => 'Proyek / Konstruksi Luar',
+                'plant_location' => null,
                 'tgl_masuk' => $tglMasuk,
                 'tgl_induction' => $tglInduction,
                 'posisi' => $faPositions[$i],
                 'status' => 'Aktif',
-                'domisili_alamat' => 'Site Office FA Project',
-                'domisili_kota' => 'Jakarta',
-                'keterangan' => 'Pekerja FA Project (Hanya Monitoring, Bukan Manpower Plant)',
+                'domisili_alamat' => null,
+                'domisili_kota' => null,
+                'keterangan' => null,
             ]);
         }
 

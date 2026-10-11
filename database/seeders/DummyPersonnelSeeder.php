@@ -12,14 +12,15 @@ class DummyPersonnelSeeder extends Seeder
     public function run()
     {
         $companies = [
-            ['code' => 'DKP', 'name' => 'PT Dwi Kartika Pratama'],
-            ['code' => 'BM', 'name' => 'PT Bangun Mandiri'],
-            ['code' => 'SB', 'name' => 'PT Sinar Baru Construction'],
-            ['code' => 'SUM', 'name' => 'PT Sumber Utama Mandiri'],
-            ['code' => 'AGS', 'name' => 'PT Anugerah Gracia Sejahtera'],
-            ['code' => 'PKN', 'name' => 'PT Panca Karya Nusantara'],
-            ['code' => 'CM', 'name' => 'PT Cipta Mitra Eka'],
-            ['code' => 'NC', 'name' => 'PT Nusantara Steel Craft'],
+            ['code' => 'DKP', 'name' => 'PT Dira Karya Pratama'],
+            ['code' => 'BM', 'name' => 'PT Bangkit Mandiri'],
+            ['code' => 'SBL', 'name' => 'PT Surya Barokah Lestari'],
+            ['code' => 'SB', 'name' => 'PT Surya Barokah Lestari'],
+            ['code' => 'SUM', 'name' => 'PT Shaka Usaha Mandiri'],
+            ['code' => 'AGS', 'name' => 'PT Artha Guna Sejahtera'],
+            ['code' => 'PKN', 'name' => 'PT Parwata Kandaga Nonoman'],
+            ['code' => 'CM', 'name' => 'PT Citra Mandiri'],
+            ['code' => 'NC', 'name' => 'PT Naga Cipta'],
             ['code' => 'ENT', 'name' => 'PT Energy Nusantara Tech'],
             ['code' => 'MURINDA', 'name' => 'PT Murinda Iron Steel Internal']
         ];

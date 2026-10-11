@@ -18,12 +18,31 @@ class DatabaseSeeder extends Seeder
 {
     public function run(): void
     {
-        // 1. User Account
+        // 1. User Account (Admin & HSE Manager)
+        User::updateOrCreate(
+            ['name' => 'HSEadmin'],
+            [
+                'email' => 'hseadmin@murinda.com',
+                'password' => Hash::make('hsemurinda123'),
+                'role' => 'admin',
+            ]
+        );
+
+        User::updateOrCreate(
+            ['name' => 'HSEManager'],
+            [
+                'email' => 'hsemanager@murinda.com',
+                'password' => Hash::make('hsemurinda123'),
+                'role' => 'manager',
+            ]
+        );
+
         User::updateOrCreate(
             ['email' => 'hse.kalijati@murinda.com'],
             [
                 'name' => 'Petugas HSE Kalijati',
                 'password' => Hash::make('password'),
+                'role' => 'admin',
             ]
         );
 

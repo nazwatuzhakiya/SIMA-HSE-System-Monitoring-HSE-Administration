@@ -113,8 +113,8 @@
     <!-- Hero Section -->
     <section class="hero-banner">
         <div class="container text-center">
-            <div class="badge bg-warning text-dark px-3 py-1.5 fw-bold mb-3" style="font-size: 12px; border-radius: 20px;">
-                PLANT KALIJATI SUBANG &bull; SIMA-HSE
+            <div class="badge border px-3 py-1.5 fw-semibold mb-3" style="background: rgba(255, 255, 255, 0.12); color: #ffffff; border-color: rgba(255, 255, 255, 0.25); font-size: 12px; border-radius: 20px; letter-spacing: 0.5px;">
+                PLANT KALIJATI SUBANG — SIMA-HSE
             </div>
             <h1 class="fw-bold display-5 mb-3">
                 SIMA-HSE: System Monitoring & HSE Administration
@@ -123,11 +123,11 @@
                 Pusat pengawasan keselamatan kerja konstruksi & fabrikasi baja, pemantauan tenaga kerja kontraktor, dan distribusi logistik perlengkapan APD resmi PT Murinda Iron Steel.
             </p>
             <div class="d-flex justify-content-center flex-wrap gap-3 mb-5">
-                <a href="https://docs.google.com/forms/d/e/1FAIpQLSeC-hDDXPRaCg0b4adFef0gSCRPoMXRoodD-Izm7tkWdy67ag/viewform?usp=publish-editor" target="_blank" rel="noopener noreferrer" class="btn btn-outline-light fw-bold px-4 py-2.5 shadow-sm d-flex align-items-center" style="border-radius: 8px; font-size: 14px; border-color: rgba(255,255,255,0.4);">
-                    <i class="fa-solid fa-clipboard-check me-2 text-warning"></i> Form Penilaian 5R
+                <a href="https://docs.google.com/forms/d/e/1FAIpQLSeC-hDDXPRaCg0b4adFef0gSCRPoMXRoodD-Izm7tkWdy67ag/viewform?usp=publish-editor" target="_blank" rel="noopener noreferrer" class="btn btn-outline-light fw-bold px-4 py-2.5 shadow-sm" style="border-radius: 6px; font-size: 14px; border-color: rgba(255,255,255,0.4);">
+                    Form Penilaian 5R
                 </a>
-                <a href="https://inductionhse.vercel.app/" target="_blank" rel="noopener noreferrer" class="btn btn-warning text-dark fw-bold px-4 py-2.5 shadow-sm d-flex align-items-center" style="border-radius: 8px; font-size: 14px;">
-                    <i class="fa-solid fa-arrow-up-right-from-square me-2"></i> Portal Pelaporan & Induksi K3
+                <a href="https://inductionhse.vercel.app/" target="_blank" rel="noopener noreferrer" class="btn btn-light fw-bold px-4 py-2.5 shadow-sm text-navy" style="border-radius: 6px; font-size: 14px; color: #003366;">
+                    Portal Pelaporan & Induksi K3
                 </a>
             </div>
 
@@ -190,7 +190,7 @@
                 <img src="{{ asset('gambar/logo-murinda.png') }}" alt="MURINDA" style="height: 30px; width: auto; object-fit: contain;">
             </div>
             <div class="small text-white-50">
-                PT Murinda Iron Steel &bull; Plant Kalijati Subang &bull; Departemen HSE & K3LH &bull; &copy; {{ date('Y') }} All Rights Reserved.
+                PT Murinda Iron Steel — Plant Kalijati Subang — Departemen HSE & K3LH — &copy; {{ date('Y') }} All Rights Reserved.
             </div>
         </div>
     </footer>

@@ -76,6 +76,26 @@ class DashboardController extends Controller
         $allWorkers = SubcontPersonnel::whereNotIn('company_code', ['KLIEN', 'VISITOR', 'PKL', 'FA', 'FA/PROJECT', 'FA PROJECT'])->get();
         $aggregateStats = \App\Services\HseDepartmentService::calculateAggregate($allWorkers, $pStart, $pEnd);
 
+        // 5. Kalkulasi Persentase Kehadiran SMT Perminggu & Persentase Terendah
+        $smtWeeklyStats = \App\Services\HseDepartmentService::calculateWeeklySmtLowest($today);
+
+        // 6. Data Operasional Hari Ini untuk Admin HSE
+        $todayAbsensiCount = \App\Models\Absensi::where('tanggal', $today)->where('jenis_kegiatan', 'SMT')->count();
+        $todayAbsensiHadir = \App\Models\Absensi::where('tanggal', $today)->where('jenis_kegiatan', 'SMT')->where('status_kehadiran', 'Hadir')->count();
+        $todayAbsensiTelat = \App\Models\Absensi::where('tanggal', $today)->where('jenis_kegiatan', 'SMT')->where('status_kehadiran', 'Telat')->count();
+        $todayAbsensiPct = $todayAbsensiCount > 0 ? round((($todayAbsensiHadir + $todayAbsensiTelat) / $todayAbsensiCount) * 100, 1) : 0;
+
+        // 7. Ringkasan Eksekutif untuk HSE Manager
+        $recordedWeeks = collect($smtWeeklyStats['weeks'])->filter(fn($w) => $w['persentase_total'] !== null);
+        $avgSmtPercentage = $recordedWeeks->count() > 0 ? round($recordedWeeks->avg('persentase_total'), 1) : 0;
+        $totalMitraSubcont = count(\App\Services\HseDepartmentService::getSubconts());
+        $apdSummaryBreakdown = [
+            'Helmet' => LogistikApd::where('jenis_apd', 'like', '%Helmet%')->sum('jumlah'),
+            'Rompi' => LogistikApd::where('jenis_apd', 'like', '%Rompi%')->sum('jumlah'),
+            'Sepatu' => LogistikApd::where('jenis_apd', 'like', '%Sepatu%')->sum('jumlah'),
+            'Harness' => LogistikApd::where('jenis_apd', 'like', '%Harness%')->sum('jumlah'),
+        ];
+
         return view('dashboard', compact(
             'totalManpowerAktif',
             'totalManpowerNonAktif',
@@ -83,7 +103,15 @@ class DashboardController extends Controller
             'totalDistribusiApd',
             'currentPeriodLabel',
             'subcontBreakdown',
-            'aggregateStats'
+            'aggregateStats',
+            'smtWeeklyStats',
+            'todayAbsensiCount',
+            'todayAbsensiHadir',
+            'todayAbsensiTelat',
+            'todayAbsensiPct',
+            'avgSmtPercentage',
+            'totalMitraSubcont',
+            'apdSummaryBreakdown'
         ));
     }
 

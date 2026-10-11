@@ -84,41 +84,37 @@
                     <tr>
                         <td class="text-center fw-bold">{{ $index + 1 }}</td>
                         <td class="text-center fw-bold">{{ date('d/m/Y', strtotime($jsp->tanggal)) }}</td>
-                        <td class="fw-bold text-navy"><i class="fa-solid fa-location-dot text-danger me-1"></i> {{ $jsp->area_patrol }}</td>
+                        <td class="fw-bold text-dark">{{ $jsp->area_patrol }}</td>
                         <td style="font-size: 11px;">{{ $jsp->tim_patroli }}</td>
                         
                         <!-- 6 Kategori Status & Keterangan -->
                         <td class="text-center">
-                            <span class="badge {{ $jsp->kat1_kondisi_umum == 'OK' ? 'bg-success' : 'bg-danger' }}">{{ $jsp->kat1_kondisi_umum }}</span>
+                            {{ $jsp->kat1_kondisi_umum }}
                             @if($jsp->catatan1)<div class="text-muted text-start" style="font-size: 10px;">{{ $jsp->catatan1 }}</div>@endif
                         </td>
                         <td class="text-center">
-                            <span class="badge {{ $jsp->kat2_peralatan_mesin == 'OK' ? 'bg-success' : 'bg-danger' }}">{{ $jsp->kat2_peralatan_mesin }}</span>
+                            {{ $jsp->kat2_peralatan_mesin }}
                             @if($jsp->catatan2)<div class="text-muted text-start" style="font-size: 10px;">{{ $jsp->catatan2 }}</div>@endif
                         </td>
                         <td class="text-center">
-                            <span class="badge {{ $jsp->kat3_penataan_material == 'OK' ? 'bg-success' : 'bg-danger' }}">{{ $jsp->kat3_penataan_material }}</span>
+                            {{ $jsp->kat3_penataan_material }}
                             @if($jsp->catatan3)<div class="text-muted text-start" style="font-size: 10px;">{{ $jsp->catatan3 }}</div>@endif
                         </td>
                         <td class="text-center">
-                            <span class="badge {{ $jsp->kat4_instalasi_listrik == 'OK' ? 'bg-success' : 'bg-danger' }}">{{ $jsp->kat4_instalasi_listrik }}</span>
+                            {{ $jsp->kat4_instalasi_listrik }}
                             @if($jsp->catatan4)<div class="text-muted text-start" style="font-size: 10px;">{{ $jsp->catatan4 }}</div>@endif
                         </td>
                         <td class="text-center">
-                            <span class="badge {{ $jsp->kat5_sarana_darurat == 'OK' ? 'bg-success' : 'bg-danger' }}">{{ $jsp->kat5_sarana_darurat }}</span>
+                            {{ $jsp->kat5_sarana_darurat }}
                             @if($jsp->catatan5)<div class="text-muted text-start" style="font-size: 10px;">{{ $jsp->catatan5 }}</div>@endif
                         </td>
                         <td class="text-center">
-                            <span class="badge {{ $jsp->kat6_alat_angkat == 'OK' ? 'bg-success' : 'bg-danger' }}">{{ $jsp->kat6_alat_angkat }}</span>
+                            {{ $jsp->kat6_alat_angkat }}
                             @if($jsp->catatan6)<div class="text-muted text-start" style="font-size: 10px;">{{ $jsp->catatan6 }}</div>@endif
                         </td>
 
                         <td class="text-center">
-                            @if($jsp->status == 'Selesai')
-                                <span class="badge bg-success-subtle text-success border border-success px-2">Selesai</span>
-                            @else
-                                <span class="badge bg-warning-subtle text-warning border border-warning px-2">Follow-up</span>
-                            @endif
+                            {{ $jsp->status == 'Selesai' ? 'Selesai' : 'Follow-up' }}
                         </td>
                         <td class="text-center text-nowrap">
                             <button type="button" class="btn btn-sm btn-outline-primary py-0 px-2 fw-semibold" style="font-size: 11px; border-radius: 6px;" data-bs-toggle="modal" data-bs-target="#modalEditJsp{{ $jsp->id }}">

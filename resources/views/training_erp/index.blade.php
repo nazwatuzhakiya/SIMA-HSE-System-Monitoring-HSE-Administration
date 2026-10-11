@@ -121,38 +121,12 @@
                     @forelse($trainings as $index => $item)
                     <tr>
                         <td class="text-center fw-bold">{{ $index + 1 }}</td>
-                        <td class="fw-bold text-dark">
-                            <i class="fa-solid fa-user me-2 text-primary"></i> {{ $item->nama_pekerja }}
-                        </td>
-                        <td><span class="badge bg-light text-dark border">{{ $item->subcont_dept }}</span></td>
+                        <td class="fw-bold text-dark">{{ $item->nama_pekerja }}</td>
+                        <td>{{ $item->subcont_dept }}</td>
+                        <td class="text-center">Team {{ $item->jenis_team }}</td>
+                        <td class="text-center">{{ $item->struktur == 'Ya' ? 'Ya' : 'Tidak' }}</td>
                         <td class="text-center">
-                            @if($item->jenis_team == 'Kebakaran')
-                                <span class="badge bg-danger"><i class="fa-solid fa-fire me-1"></i> Team Kebakaran</span>
-                            @elseif($item->jenis_team == 'P3K')
-                                <span class="badge bg-success"><i class="fa-solid fa-hand-holding-medical me-1"></i> Team P3K</span>
-                            @elseif($item->jenis_team == 'Evakuasi')
-                                <span class="badge bg-warning text-dark"><i class="fa-solid fa-person-running me-1"></i> Team Evakuasi</span>
-                            @else
-                                <span class="badge bg-secondary"><i class="fa-solid fa-shield me-1"></i> Team Umum</span>
-                            @endif
-                        </td>
-                        <td class="text-center">
-                            @if($item->struktur == 'Ya')
-                                <span class="badge bg-success-subtle text-success border border-success fw-bold px-3 py-1">Ya</span>
-                            @else
-                                <span class="badge bg-secondary-subtle text-secondary border border-secondary px-3 py-1">Tidak</span>
-                            @endif
-                        </td>
-                        <td class="text-center">
-                            @if(str_contains(strtolower($item->pernyataan), 'belum'))
-                                <span class="badge bg-warning text-dark px-3 py-1">
-                                    <i class="fa-solid fa-clock me-1"></i> Belum Menandatangani
-                                </span>
-                            @else
-                                <span class="badge bg-success px-3 py-1">
-                                    <i class="fa-solid fa-file-signature me-1"></i> Sudah Menandatangani
-                                </span>
-                            @endif
+                            {{ str_contains(strtolower($item->pernyataan), 'belum') ? 'Belum Menandatangani' : 'Sudah Menandatangani' }}
                             @if($item->pernyataan && !in_array($item->pernyataan, ['Sudah Menandatangani', 'Belum Menandatangani']))
                                 <div class="small text-muted mt-1">{{ $item->pernyataan }}</div>
                             @endif

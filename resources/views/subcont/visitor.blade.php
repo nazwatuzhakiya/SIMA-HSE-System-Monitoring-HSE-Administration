@@ -20,22 +20,22 @@
     <div class="d-flex flex-wrap justify-content-between align-items-center mb-3 gap-2 no-print">
         <div class="d-flex flex-wrap align-items-center gap-2">
             <button type="button" class="btn btn-murinda-primary btn-sm fw-bold px-3 shadow-sm" data-bs-toggle="modal" data-bs-target="#modalTambahVisitor">
-                <i class="fa-solid fa-plus me-1"></i> Catat Tamu / Khusus Baru
+                Catat Tamu / Khusus Baru
             </button>
             <button type="button" class="btn btn-excel btn-sm fw-bold px-3 shadow-sm" onclick="exportTableToExcel('tabel-visitor-khusus', 'MONITORING_TAMU_{{ $activeCompany }}', 'DAFTAR {{ $activeCompany }}')">
-                <i class="fa-solid fa-file-excel me-1"></i> Ekspor Excel
+                Ekspor Excel
             </button>
             <button type="button" class="btn btn-pdf btn-sm fw-bold px-3 shadow-sm" onclick="window.print()">
-                <i class="fa-solid fa-file-pdf me-1"></i> Cetak PDF
+                Cetak PDF
             </button>
         </div>
 
         <div class="d-flex flex-wrap align-items-center gap-2 ms-auto">
-            <span class="badge badge-blured-gray px-3 py-2 shadow-sm" style="font-size: 12px; border-radius: 6px;">
-                <i class="fa-regular fa-clock me-1 text-primary"></i> Periode (26 s/d 25): {{ $period['label'] }}
+            <span class="badge badge-blured-gray px-3 py-2 shadow-sm text-dark" style="font-size: 12px; border-radius: 6px;">
+                Periode: {{ $period['label'] }}
             </span>
-            <span class="badge badge-blured-gray px-3 py-2 shadow-sm" style="font-size: 12px; border-radius: 6px;">
-                <i class="fa-regular fa-calendar-check me-1 text-primary"></i> Hari Ini: {{ date('d/m/Y') }}
+            <span class="badge badge-blured-gray px-3 py-2 shadow-sm text-dark" style="font-size: 12px; border-radius: 6px;">
+                Hari Ini: {{ date('d/m/Y') }}
             </span>
         </div>
     </div>
@@ -44,18 +44,15 @@
     <div class="row g-3 mb-4 no-print">
         <div class="col-md-4">
             <a href="{{ route('subcont.visitor', ['company' => 'PKL']) }}" class="text-decoration-none d-block h-100">
-                <div class="card-kpi-uniform h-100 {{ $activeCompany === 'PKL' ? 'border border-2 border-primary shadow-sm' : '' }}" style="{{ $activeCompany === 'PKL' ? 'background: #f0fdf4;' : '' }}">
+                <div class="card-kpi-uniform h-100 transition-hover" style="{{ $activeCompany === 'PKL' ? 'background: #003366 !important; border: 2px solid #002244 !important; box-shadow: 0 4px 14px rgba(0, 51, 102, 0.25);' : 'background: #ffffff; border: 1px solid #e2e8f0;' }}">
                     <div class="d-flex justify-content-between align-items-center">
                         <div>
-                            <div class="d-flex align-items-center gap-2 mb-1">
-                                <span class="kpi-title mb-0">Siswa / Mahasiswa PKL</span>
-                                @if($activeCompany === 'PKL')
-                                    <span class="badge badge-aman px-1.5 py-0.5" style="font-size: 10px;">Dipilih</span>
-                                @endif
+                            <div class="mb-1">
+                                <span class="kpi-title mb-0" style="{{ $activeCompany === 'PKL' ? 'color: rgba(255, 255, 255, 0.85) !important;' : '' }}">Siswa / Mahasiswa PKL</span>
                             </div>
-                            <h3 class="kpi-value text-dark">{{ $totalPkl }}</h3>
+                            <h3 class="kpi-value {{ $activeCompany === 'PKL' ? 'text-white' : 'text-dark' }}">{{ $totalPkl }}</h3>
                         </div>
-                        <div class="kpi-icon-box {{ $activeCompany === 'PKL' ? 'bg-primary text-white' : '' }}">
+                        <div class="kpi-icon-box" style="{{ $activeCompany === 'PKL' ? 'background: rgba(255, 255, 255, 0.2) !important; color: #ffffff !important;' : '' }}">
                             <i class="fa-solid fa-graduation-cap"></i>
                         </div>
                     </div>
@@ -65,18 +62,15 @@
 
         <div class="col-md-4">
             <a href="{{ route('subcont.visitor', ['company' => 'VISITOR']) }}" class="text-decoration-none d-block h-100">
-                <div class="card-kpi-uniform h-100 {{ $activeCompany === 'VISITOR' ? 'border border-2 border-primary shadow-sm' : '' }}" style="{{ $activeCompany === 'VISITOR' ? 'background: #eff6ff;' : '' }}">
+                <div class="card-kpi-uniform h-100 transition-hover" style="{{ $activeCompany === 'VISITOR' ? 'background: #003366 !important; border: 2px solid #002244 !important; box-shadow: 0 4px 14px rgba(0, 51, 102, 0.25);' : 'background: #ffffff; border: 1px solid #e2e8f0;' }}">
                     <div class="d-flex justify-content-between align-items-center">
                         <div>
-                            <div class="d-flex align-items-center gap-2 mb-1">
-                                <span class="kpi-title mb-0">Visitor / Tamu Umum</span>
-                                @if($activeCompany === 'VISITOR')
-                                    <span class="badge badge-aman px-1.5 py-0.5" style="font-size: 10px;">Dipilih</span>
-                                @endif
+                            <div class="mb-1">
+                                <span class="kpi-title mb-0" style="{{ $activeCompany === 'VISITOR' ? 'color: rgba(255, 255, 255, 0.85) !important;' : '' }}">Visitor / Tamu Umum</span>
                             </div>
-                            <h3 class="kpi-value text-dark">{{ $totalVisitor }}</h3>
+                            <h3 class="kpi-value {{ $activeCompany === 'VISITOR' ? 'text-white' : 'text-dark' }}">{{ $totalVisitor }}</h3>
                         </div>
-                        <div class="kpi-icon-box {{ $activeCompany === 'VISITOR' ? 'bg-primary text-white' : '' }}">
+                        <div class="kpi-icon-box" style="{{ $activeCompany === 'VISITOR' ? 'background: rgba(255, 255, 255, 0.2) !important; color: #ffffff !important;' : '' }}">
                             <i class="fa-solid fa-id-badge"></i>
                         </div>
                     </div>
@@ -86,18 +80,15 @@
 
         <div class="col-md-4">
             <a href="{{ route('subcont.visitor', ['company' => 'KLIEN']) }}" class="text-decoration-none d-block h-100">
-                <div class="card-kpi-uniform h-100 {{ $activeCompany === 'KLIEN' ? 'border border-2 border-primary shadow-sm' : '' }}" style="{{ $activeCompany === 'KLIEN' ? 'background: #fefce8;' : '' }}">
+                <div class="card-kpi-uniform h-100 transition-hover" style="{{ $activeCompany === 'KLIEN' ? 'background: #003366 !important; border: 2px solid #002244 !important; box-shadow: 0 4px 14px rgba(0, 51, 102, 0.25);' : 'background: #ffffff; border: 1px solid #e2e8f0;' }}">
                     <div class="d-flex justify-content-between align-items-center">
                         <div>
-                            <div class="d-flex align-items-center gap-2 mb-1">
-                                <span class="kpi-title mb-0">Klien / Owner Representative</span>
-                                @if($activeCompany === 'KLIEN')
-                                    <span class="badge badge-aman px-1.5 py-0.5" style="font-size: 10px;">Dipilih</span>
-                                @endif
+                            <div class="mb-1">
+                                <span class="kpi-title mb-0" style="{{ $activeCompany === 'KLIEN' ? 'color: rgba(255, 255, 255, 0.85) !important;' : '' }}">Klien / Owner Representative</span>
                             </div>
-                            <h3 class="kpi-value text-dark">{{ $totalKlien }}</h3>
+                            <h3 class="kpi-value {{ $activeCompany === 'KLIEN' ? 'text-white' : 'text-dark' }}">{{ $totalKlien }}</h3>
                         </div>
-                        <div class="kpi-icon-box {{ $activeCompany === 'KLIEN' ? 'bg-primary text-white' : '' }}">
+                        <div class="kpi-icon-box" style="{{ $activeCompany === 'KLIEN' ? 'background: rgba(255, 255, 255, 0.2) !important; color: #ffffff !important;' : '' }}">
                             <i class="fa-solid fa-briefcase"></i>
                         </div>
                     </div>
@@ -149,13 +140,13 @@
                                     <div class="fw-bold text-dark">{{ $p->nama }}</div>
                                     <small class="text-muted font-monospace" style="font-size: 11px;">ID: MIS-{{ $p->company_code }}-{{ str_pad($p->id, 3, '0', STR_PAD_LEFT) }}</small>
                                 </td>
-                                <td class="text-center">
+                                <td class="text-center font-monospace">
                                     @if($p->company_code === 'PKL')
-                                        <span class="badge bg-success font-monospace px-2 py-1">PKL / MAGANG</span>
+                                        PKL / MAGANG
                                     @elseif($p->company_code === 'KLIEN')
-                                        <span class="badge bg-warning text-dark font-monospace px-2 py-1">KLIEN</span>
+                                        KLIEN
                                     @else
-                                        <span class="badge bg-primary font-monospace px-2 py-1">VISITOR</span>
+                                        VISITOR
                                     @endif
                                 </td>
                                 <td>
@@ -163,20 +154,14 @@
                                 </td>
                                 <td>
                                     @if($p->company_code === 'PKL')
-                                        <div class="d-flex flex-column gap-1">
-                                            <div>
-                                                <span class="badge bg-primary text-white" style="font-size: 10px;">
-                                                    <i class="fa-solid fa-building me-1"></i> Dept: {{ $p->departemen_penempatan ?: 'HSE' }}
-                                                </span>
-                                            </div>
-                                            <div class="fw-bold text-dark small" style="color: #003366 !important;">
-                                                {{ $p->posisi ?: 'Staff Magang' }}
-                                            </div>
+                                        <div>
+                                            <div class="fw-bold text-dark small">{{ $p->posisi ?: 'Staff Magang' }}</div>
+                                            <small class="text-muted">Dept: {{ $p->departemen_penempatan ?: 'HSE' }}</small>
                                         </div>
                                     @else
                                         <div class="fw-semibold text-dark">{{ $p->posisi ?: '-' }}</div>
                                         @if($p->departemen_penempatan)
-                                            <small class="text-muted"><i class="fa-solid fa-location-dot me-1 text-danger"></i> Area: {{ $p->departemen_penempatan }}</small>
+                                            <small class="text-muted">Area: {{ $p->departemen_penempatan }}</small>
                                         @endif
                                     @endif
                                 </td>
@@ -187,19 +172,11 @@
                                     @if($p->tgl_keluar)
                                         <span class="fw-semibold text-dark">{{ date('d/m/Y', strtotime($p->tgl_keluar)) }}</span>
                                     @else
-                                        <span class="badge bg-light text-muted border" style="font-size: 11px;">Belum Selesai</span>
+                                        <span class="text-muted">Belum Selesai</span>
                                     @endif
                                 </td>
                                 <td class="text-center">
-                                    @if($p->status === 'Aktif')
-                                        <span class="badge-aman">
-                                            <i class="fa-solid fa-circle-dot me-1"></i> Aktif
-                                        </span>
-                                    @else
-                                        <span class="badge bg-secondary-subtle text-secondary border px-2 py-1">
-                                            <i class="fa-solid fa-circle-check me-1"></i> Non-Aktif
-                                        </span>
-                                    @endif
+                                    {{ $p->status }}
                                 </td>
                                 <td>
                                     <small class="text-muted d-inline-block text-truncate" style="max-width: 200px;" title="{{ $p->keterangan ?: '-' }}">
@@ -209,14 +186,14 @@
                                 <td class="text-center no-print">
                                     <div class="d-flex justify-content-center gap-1">
                                         <button type="button" class="btn btn-action-view btn-sm" title="Lihat Data Lengkap" onclick="showDetailVisitor({{ json_encode($p) }})">
-                                            <i class="fa-solid fa-eye"></i> Lihat
+                                            Lihat
                                         </button>
                                         <button type="button" class="btn btn-action-edit btn-sm" title="Edit Data" onclick="editVisitor({{ json_encode($p) }})">
-                                            <i class="fa-solid fa-pen-to-square"></i> Edit
+                                            Edit
                                         </button>
                                         @if($p->status === 'Aktif')
                                             <button type="button" class="btn btn-action-finish btn-sm fw-bold" title="Selesaikan Kunjungan / Magang" onclick="bukaModalSelesaiVisitor({{ json_encode($p) }})">
-                                                <i class="fa-solid fa-circle-check text-success me-1"></i> Selesai
+                                                Selesai
                                             </button>
                                         @endif
                                     </div>
@@ -264,7 +241,7 @@
                             <label class="form-label fw-semibold text-dark" style="font-size: 13px;">Kategori: <span class="text-danger">*</span></label>
                             <select name="company_code" id="tambah_company_code" class="form-select form-select-custom" required onchange="toggleTambahKategori(this.value)">
                                 <option value="PKL" {{ $activeCompany === 'PKL' ? 'selected' : '' }}>PKL (Siswa SMK / Mahasiswa Magang)</option>
-                                <option value="VISITOR" {{ $activeCompany === 'VISITOR' ? 'selected' : '' }}>VISITOR (Tamu Pabrik / Auditor / Vendor)</option>
+                                <option value="VISITOR" {{ $activeCompany === 'VISITOR' ? 'selected' : '' }}>VISITOR (Tamu Perusahaan / Auditor / Vendor)</option>
                                 <option value="KLIEN" {{ $activeCompany === 'KLIEN' ? 'selected' : '' }}>KLIEN (Owner Representative / Project Client)</option>
                             </select>
                         </div>
@@ -416,39 +393,39 @@
             <div class="modal-body p-4">
                 <table class="table table-bordered table-sm mb-0">
                     <tr>
-                        <th style="width: 40%; background: #f8fafc;">ID Registrasi</th>
+                        <th style="width: 40%; background: #ffffff;">ID Registrasi</th>
                         <td id="detail_visitor_id" class="fw-bold text-navy"></td>
                     </tr>
                     <tr>
-                        <th style="background: #f8fafc;">Kategori</th>
+                        <th style="background: #ffffff;">Kategori</th>
                         <td id="detail_visitor_company"></td>
                     </tr>
                     <tr>
-                        <th style="background: #f8fafc;">Asal Instansi / Sekolah</th>
+                        <th style="background: #ffffff;">Asal Instansi / Sekolah</th>
                         <td id="detail_visitor_instansi" class="fw-semibold"></td>
                     </tr>
                     <tr>
-                        <th style="background: #f8fafc;">Departemen Penempatan</th>
+                        <th style="background: #ffffff;">Departemen Penempatan</th>
                         <td id="detail_visitor_dept" class="fw-bold text-primary"></td>
                     </tr>
                     <tr>
-                        <th style="background: #f8fafc;">Peran / Posisi</th>
+                        <th style="background: #ffffff;">Peran / Posisi</th>
                         <td id="detail_visitor_posisi" class="fw-semibold"></td>
                     </tr>
                     <tr>
-                        <th style="background: #f8fafc;">Status Kunjungan</th>
+                        <th style="background: #ffffff;">Status Kunjungan</th>
                         <td><span id="detail_visitor_status_badge"></span></td>
                     </tr>
                     <tr>
-                        <th style="background: #f8fafc;">Tanggal Mulai / Masuk</th>
+                        <th style="background: #ffffff;">Tanggal Mulai / Masuk</th>
                         <td id="detail_visitor_tgl_masuk"></td>
                     </tr>
                     <tr>
-                        <th style="background: #f8fafc;">Tanggal Selesai</th>
+                        <th style="background: #ffffff;">Tanggal Selesai</th>
                         <td id="detail_visitor_tgl_keluar"></td>
                     </tr>
                     <tr>
-                        <th style="background: #f8fafc;">Keperluan / Catatan</th>
+                        <th style="background: #ffffff;">Keperluan / Catatan</th>
                         <td id="detail_visitor_keterangan"></td>
                     </tr>
                 </table>
@@ -592,7 +569,7 @@
             if (labelInstansi) labelInstansi.innerHTML = 'Asal Perusahaan / Instansi Tamu: <span class="text-danger">*</span>';
             if (inputInstansi) inputInstansi.placeholder = 'Contoh: PT Sucofindo / Vendor Mesin';
             if (labelDept) labelDept.innerHTML = 'Departemen / Area Kunjungan:';
-            if (helpDept) helpDept.innerText = 'Area pabrik atau departemen yang dikunjungi';
+            if (helpDept) helpDept.innerText = 'Area perusahaan atau departemen yang dikunjungi';
             if (labelPosisi) labelPosisi.innerHTML = 'Jabatan / Posisi Tamu: <span class="text-danger">*</span>';
             if (inputPosisi) inputPosisi.placeholder = 'Contoh: Lead Auditor / Service Engineer';
             if (helpPosisi) helpPosisi.innerText = 'Jabatan atau kapasitas tamu';

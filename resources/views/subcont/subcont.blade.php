@@ -9,33 +9,33 @@
 
     <!-- Official Header for Print -->
     <x-murinda-header
-        title="MONITORING SUBKONTRAKTOR PABRIK"
+        title="MONITORING SUBKONTRAKTOR PERUSAHAAN"
         subhead="DATABASE TENAGA KERJA SUBKONTRAKTOR RESMI PT MURINDA IRON STEEL"
         docNo="DOC-HSE-MIS-SUB-2026"
     />
 
     <!-- ======================================================== -->
-    <!-- 1. HEADER AKSI & PERIODE AKTIF (BADGE DI KANAN / PINGGIR)  -->
+    <!-- 1. HEADER AKSI & PERIODE AKTIF                            -->
     <!-- ======================================================== -->
     <div class="d-flex flex-wrap justify-content-between align-items-center mb-3 gap-2 no-print">
         <div class="d-flex flex-wrap align-items-center gap-2">
             <button type="button" class="btn btn-murinda-primary btn-sm fw-bold px-3 shadow-sm" data-bs-toggle="modal" data-bs-target="#modalTambahPekerjaSubcont">
-                <i class="fa-solid fa-plus me-1"></i> Tambah Pekerja Subcont
+                Tambah Pekerja Subcont
             </button>
             <button type="button" class="btn btn-excel btn-sm fw-bold px-3 shadow-sm" onclick="exportTableToExcel('tabel-subcont-pekerja', 'DATA_SUBCONT_{{ $activeCompany }}', 'DAFTAR TENAGA KERJA SUBCONT {{ $activeCompany }}')">
-                <i class="fa-solid fa-file-excel me-1"></i> Ekspor Excel
+                Ekspor Excel
             </button>
             <button type="button" class="btn btn-pdf btn-sm fw-bold px-3 shadow-sm" onclick="window.print()">
-                <i class="fa-solid fa-file-pdf me-1"></i> Cetak PDF
+                Cetak PDF
             </button>
         </div>
 
         <div class="d-flex flex-wrap align-items-center gap-2 ms-auto">
-            <span class="badge badge-blured-gray px-3 py-2 shadow-sm" style="font-size: 12px; border-radius: 6px;">
-                <i class="fa-regular fa-clock me-1 text-primary"></i> Periode (26 s/d 25): {{ $period['label'] }}
+            <span class="badge badge-blured-gray px-3 py-2 shadow-sm text-dark" style="font-size: 12px; border-radius: 6px;">
+                Periode: {{ $period['label'] }}
             </span>
-            <span class="badge badge-blured-gray px-3 py-2 shadow-sm" style="font-size: 12px; border-radius: 6px;">
-                <i class="fa-regular fa-calendar-check me-1 text-primary"></i> Hari Ini: {{ date('d/m/Y') }}
+            <span class="badge badge-blured-gray px-3 py-2 shadow-sm text-dark" style="font-size: 12px; border-radius: 6px;">
+                Hari Ini: {{ date('d/m/Y') }}
             </span>
         </div>
     </div>
@@ -106,31 +106,26 @@
     </div>
 
     <!-- ======================================================== -->
-    <!-- 3. PILIH SUBKONTRAKTOR RESMI (HORIZONTAL SCROLL)         -->
+    <!-- 3. PILIH SUBKONTRAKTOR RESMI (KOMPAK & RINGKAS)          -->
     <!-- ======================================================== -->
     <div class="card-custom mb-4 no-print">
         <div class="card-header-custom d-flex justify-content-between align-items-center">
             <span class="card-title-custom" style="color: #003366;">
-                <i class="fa-solid fa-people-group me-1"></i> Pilih Subkontraktor Resmi
+                Pilih Subkontraktor
             </span>
-            <small class="text-muted">Pilih subkontraktor untuk melihat daftar pekerja</small>
+            <small class="text-muted">Pilih subkontraktor untuk memfilter daftar pekerja</small>
         </div>
         <div class="card-body p-3">
-            <div class="horizontal-subcont-scroll">
+            <div class="subcont-grid-4">
                 @foreach($companies as $comp)
                     @php
                         $isActive = ($comp->code === $activeCompany);
                         $count = $companyCounts[$comp->code] ?? 0;
                     @endphp
-                    <div class="subcont-pill-card {{ $isActive ? 'active-pill' : '' }}">
-                        <a href="{{ route('subcont.subcont', ['company' => $comp->code]) }}" class="text-decoration-none d-block">
-                            <span class="badge {{ $isActive ? 'bg-white text-dark' : 'bg-light text-dark border' }} px-2 py-1 mb-1 font-monospace" style="font-size: 11px;">
-                                {{ $comp->code }}
-                            </span>
-                            <div class="fw-bold fs-5 {{ $isActive ? 'text-white' : 'text-dark' }}">{{ $count }}</div>
-                            <small class="{{ $isActive ? 'text-white-50' : 'text-muted' }}" style="font-size: 11px; display: block; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;" title="{{ $comp->name }}">
-                                {{ $comp->name }}
-                            </small>
+                    <div>
+                        <a href="{{ route('subcont.subcont', ['company' => $comp->code]) }}" class="subcont-pill-btn-compact w-100 {{ $isActive ? 'active-pill' : '' }}" title="{{ $comp->code }}">
+                            <span class="text-truncate me-1">{{ $comp->code }}</span>
+                            <span class="badge">{{ $count }}</span>
                         </a>
                     </div>
                 @endforeach
@@ -147,15 +142,14 @@
                 <input type="hidden" name="company" value="{{ $activeCompany }}">
 
                 <div class="col-lg-4 col-md-4">
-                    <label class="form-label mb-1 fw-semibold text-dark" style="font-size: 12px;">Cari Nama Personel / Jabatan:</label>
+                    <label class="form-label mb-1 fw-semibold text-dark" style="font-size: 12px;">Pencarian:</label>
                     <div class="input-group input-group-sm">
-                        <span class="input-group-text bg-light"><i class="fa-solid fa-search text-muted"></i></span>
-                        <input type="text" name="search" value="{{ request('search') }}" class="form-control" placeholder="Ketik nama atau jabatan pekerja...">
+                        <input type="text" name="search" value="{{ request('search') }}" class="form-control" placeholder="Ketik nama atau jabatan...">
                     </div>
                 </div>
 
                 <div class="col-lg-2 col-md-3">
-                    <label class="form-label mb-1 fw-semibold text-dark" style="font-size: 12px;">Status Pekerja:</label>
+                    <label class="form-label mb-1 fw-semibold text-dark" style="font-size: 12px;">Status:</label>
                     <select name="status" class="form-select form-select-sm" onchange="this.form.submit()">
                         <option value="">Semua Status</option>
                         <option value="Aktif" {{ request('status') == 'Aktif' ? 'selected' : '' }}>Aktif</option>
@@ -164,11 +158,11 @@
                 </div>
 
                 <div class="col-lg-4 col-md-5">
-                    <label class="form-label mb-1 fw-semibold text-dark" style="font-size: 12px;">Rentang Tanggal Masuk (DD/MM/YYYY):</label>
+                    <label class="form-label mb-1 fw-semibold text-dark" style="font-size: 12px;">Tanggal Masuk:</label>
                     <div class="input-group input-group-sm">
-                        <input type="text" name="start_date" value="{{ request('start_date') }}" class="form-control flatpickr-date" placeholder="DD/MM/YYYY">
+                        <input type="text" name="start_date" value="{{ request('start_date') }}" class="form-control flatpickr-date" placeholder="DD/MM/YYYY" onchange="this.form.submit()">
                         <span class="input-group-text bg-light">s/d</span>
-                        <input type="text" name="end_date" value="{{ request('end_date') }}" class="form-control flatpickr-date" placeholder="DD/MM/YYYY">
+                        <input type="text" name="end_date" value="{{ request('end_date') }}" class="form-control flatpickr-date" placeholder="DD/MM/YYYY" onchange="this.form.submit()">
                     </div>
                 </div>
 
@@ -193,13 +187,13 @@
         <div class="card-header-custom d-flex flex-wrap justify-content-between align-items-center gap-2">
             <div>
                 <h5 class="fw-bold mb-0" style="color: #001f3f;">
-                    <i class="fa-solid fa-users me-1 text-primary"></i> Data Pekerja: {{ $activeCompany }}
+                    Data Pekerja: {{ $activeCompany }}
                 </h5>
                 <small class="text-muted">Total: <strong>{{ count($personnels) }}</strong> personel terdaftar pada subkontraktor ini</small>
             </div>
             <div class="d-flex align-items-center gap-2">
                 <button type="button" class="btn btn-outline-primary btn-sm" data-bs-toggle="modal" data-bs-target="#modalEditCompany">
-                    <i class="fa-solid fa-pen-to-square me-1"></i> Edit Nama Bagian
+                    Edit Nama Bagian
                 </button>
             </div>
         </div>
@@ -227,11 +221,7 @@
                                     <div class="fw-bold text-dark">{{ $p->nama }}</div>
                                     <small class="text-muted font-monospace" style="font-size: 11px;">EMP-{{ $p->company_code }}-{{ str_pad($p->id, 3, '0', STR_PAD_LEFT) }}</small>
                                 </td>
-                                <td>
-                                    <span class="badge bg-secondary px-2 py-1 font-monospace" style="font-size: 11px;">
-                                        {{ $p->company_code }}
-                                    </span>
-                                </td>
+                                <td class="text-center font-monospace">{{ $p->company_code }}</td>
                                 <td class="fw-semibold text-dark">{{ $p->posisi ?: '-' }}</td>
                                 <td class="text-center">
                                     <span class="fw-semibold text-dark">{{ $p->tgl_induction ? date('d/m/Y', strtotime($p->tgl_induction)) : ($p->tgl_masuk ? date('d/m/Y', strtotime($p->tgl_masuk)) : '-') }}</span>
@@ -249,26 +239,22 @@
                                         ]);
                                     @endphp
                                     @if(!empty($addr))
-                                        <small class="text-muted" style="font-size: 10.5px;"><i class="fa-solid fa-location-dot me-1 text-danger"></i>{{ implode(', ', $addr) }}</small>
+                                        <small class="text-muted" style="font-size: 11px;">{{ implode(', ', $addr) }}</small>
                                     @endif
                                 </td>
                                 <td class="text-center">
-                                    @if($p->status === 'Aktif')
-                                        <span class="badge-aman"><i class="fa-solid fa-check me-1"></i> Aktif</span>
-                                    @else
-                                        <span class="badge-bahaya"><i class="fa-solid fa-xmark me-1"></i> Non-Aktif</span>
-                                        @if($p->tgl_keluar)
-                                            <div class="text-muted" style="font-size: 11px;">Keluar: {{ date('d/m/Y', strtotime($p->tgl_keluar)) }}</div>
-                                        @endif
+                                    {{ $p->status }}
+                                    @if($p->status !== 'Aktif' && $p->tgl_keluar)
+                                        <div class="text-muted" style="font-size: 11px;">Keluar: {{ date('d/m/Y', strtotime($p->tgl_keluar)) }}</div>
                                     @endif
                                 </td>
                                 <td class="text-center no-print">
                                     <div class="d-flex justify-content-center gap-1">
                                         <button type="button" class="btn btn-action-view" title="Lihat Data Lengkap" onclick="showDetailPersonel({{ json_encode($p) }})">
-                                            <i class="fa-solid fa-eye"></i> Lihat Data
+                                            Lihat
                                         </button>
                                         <button type="button" class="btn btn-action-edit" title="Edit Data" onclick="editPersonel({{ json_encode($p) }})">
-                                            <i class="fa-solid fa-pen-to-square"></i> Edit Data
+                                            Edit
                                         </button>
                                     </div>
                                 </td>

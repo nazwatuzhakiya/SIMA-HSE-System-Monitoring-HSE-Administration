@@ -67,7 +67,120 @@ class ApdController extends Controller
             'Masker' => LogistikApd::where('jenis_apd', 'LIKE', '%Masker%')->sum('jumlah'),
         ];
 
-        return view('apd.index', compact('logs', 'allApdLogs', 'allManpower', 'selectedMp', 'workerHistory', 'apdStats', 'departments', 'selectedDept'));
+        // Periode berjalan dan deteksi pengambilan APD (Indikasi Penimbunan vs Distribusi Wajar)
+        $period = \App\Services\HseDepartmentService::getCurrentPeriodDates();
+        $pStart = $request->input('start_date', $period['start']);
+        $pEnd = $request->input('end_date', $period['end']);
+
+        $periodLogs = LogistikApd::whereBetween('tanggal_pengambilan', [$pStart, $pEnd])->get();
+        if ($periodLogs->isEmpty()) {
+            $periodLogs = LogistikApd::all();
+        }
+
+        $workerApdMap = [];
+        foreach ($periodLogs as $log) {
+            $workerKey = $log->nama_personel . '|' . $log->departemen_subcont;
+            if (!isset($workerApdMap[$workerKey])) {
+                $workerApdMap[$workerKey] = [
+                    'nama_personel' => $log->nama_personel,
+                    'departemen_subcont' => $log->departemen_subcont,
+                    'total_apd' => 0,
+                    'total_transaksi' => 0,
+                    'apd_types' => [],
+                    'has_duplicate_type' => false,
+                    'duplicate_details' => []
+                ];
+            }
+            $workerApdMap[$workerKey]['total_apd'] += $log->jumlah;
+            $workerApdMap[$workerKey]['total_transaksi'] += 1;
+
+            $items = array_map('trim', explode(',', $log->jenis_apd));
+            foreach ($items as $item) {
+                if (!empty($item)) {
+                    $workerApdMap[$workerKey]['apd_types'][$item] = ($workerApdMap[$workerKey]['apd_types'][$item] ?? 0) + 1;
+                }
+            }
+        }
+
+        foreach ($workerApdMap as &$w) {
+            foreach ($w['apd_types'] as $itemType => $count) {
+                // Sesuai aturan: hanya jika dalam 1 periode ganti APD yang SAMA lebih dari 5 kali baru dikasih warning
+                if ($count > 5) {
+                    $w['has_duplicate_type'] = true;
+                    $w['duplicate_details'][$itemType] = $count;
+                }
+            }
+        }
+        unset($w);
+
+        $suspiciousWorkers = array_filter($workerApdMap, fn($w) => $w['has_duplicate_type']);
+        usort($suspiciousWorkers, fn($a, $b) => $b['total_apd'] <=> $a['total_apd']);
+
+        if (!empty($suspiciousWorkers)) {
+            $topApdTaker = (object) reset($suspiciousWorkers);
+            $topApdTaker->is_danger = true;
+            $topApdTaker->status_label = 'Waspada Penimbunan APD';
+            $topApdTaker->status_note = 'Terindikasi mengambil APD yang sama > 5 kali (' . implode(', ', array_map(fn($k, $v) => "$k: {$v}x", array_keys($topApdTaker->duplicate_details), $topApdTaker->duplicate_details)) . ')';
+        } else {
+            usort($workerApdMap, fn($a, $b) => $b['total_apd'] <=> $a['total_apd']);
+            if (!empty($workerApdMap)) {
+                $topApdTaker = (object) reset($workerApdMap);
+                $topApdTaker->is_danger = false;
+                $topApdTaker->status_label = 'Distribusi APD Aman';
+                $topApdTaker->status_note = 'Aman dan tidak terindikasi adanya penimbunan';
+            } else {
+                $topApdTaker = null;
+            }
+        }
+
+        // Data Grafik 1: Bagian / Departemen / Subcont mana yang paling banyak meminta APD
+        $deptApdChart = LogistikApd::select('departemen_subcont', \Illuminate\Support\Facades\DB::raw('sum(jumlah) as total_apd'))
+            ->groupBy('departemen_subcont')
+            ->orderByDesc('total_apd')
+            ->get();
+
+        // Data Grafik 2: Jenis APD apa yang paling banyak diminta
+        $apdTypeChart = [];
+        foreach (LogistikApd::all() as $itemLog) {
+            $splits = array_map('trim', explode(',', $itemLog->jenis_apd));
+            foreach ($splits as $sp) {
+                if (!empty($sp)) {
+                    $apdTypeChart[$sp] = ($apdTypeChart[$sp] ?? 0) + $itemLog->jumlah;
+                }
+            }
+        }
+        arsort($apdTypeChart);
+
+        // Data 10 Nama tersering mengajukan / mengambil APD
+        $top10Requesters = LogistikApd::select('nama_personel', 'departemen_subcont', \Illuminate\Support\Facades\DB::raw('count(*) as total_transaksi'), \Illuminate\Support\Facades\DB::raw('sum(jumlah) as total_apd'))
+            ->groupBy('nama_personel', 'departemen_subcont')
+            ->orderByDesc('total_transaksi')
+            ->orderByDesc('total_apd')
+            ->limit(10)
+            ->get();
+
+        // Ringkasan Distribusi & Permintaan APD per Departemen/Subcont untuk Tampilan Eksekutif HSE Manager
+        $deptApdSummary = LogistikApd::select('departemen_subcont', \Illuminate\Support\Facades\DB::raw('count(*) as total_transaksi'), \Illuminate\Support\Facades\DB::raw('sum(jumlah) as total_apd'))
+            ->groupBy('departemen_subcont')
+            ->orderByDesc('total_apd')
+            ->get();
+
+        return view('apd.index', compact(
+            'logs',
+            'allApdLogs',
+            'allManpower',
+            'selectedMp',
+            'workerHistory',
+            'apdStats',
+            'departments',
+            'selectedDept',
+            'topApdTaker',
+            'period',
+            'deptApdSummary',
+            'deptApdChart',
+            'apdTypeChart',
+            'top10Requesters'
+        ));
     }
 
     public function create(Request $request)

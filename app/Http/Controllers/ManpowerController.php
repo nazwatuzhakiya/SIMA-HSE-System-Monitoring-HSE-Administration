@@ -93,6 +93,9 @@ class ManpowerController extends Controller
         $today = date('Y-m-d');
         $defaultPeriodKey = null;
 
+        $currentYear = (int) date('Y');
+        $currentMonth = (int) date('m');
+
         for ($m = 1; $m <= 12; $m++) {
             if ($m == 1) {
                 $start = ($selectedYear - 1) . '-12-26';
@@ -106,6 +109,11 @@ class ManpowerController extends Controller
                 $label = '26 ' . substr($monthNames[$m - 1], 0, 3) . ' - 25 ' . substr($monthNames[$m], 0, 3) . ' ' . $selectedYear;
             }
 
+            $isFrozen = false;
+            if ($selectedYear > $currentYear || ($selectedYear == $currentYear && $m > $currentMonth)) {
+                $isFrozen = true;
+            }
+
             $key = 'P' . $m;
             $periods[$key] = [
                 'key' => $key,
@@ -114,6 +122,7 @@ class ManpowerController extends Controller
                 'month_name' => $monthNames[$m],
                 'start_date' => $start,
                 'end_date' => $end,
+                'is_frozen' => $isFrozen,
             ];
 
             if ($today >= $start && $today <= $end && $selectedYear == (int)date('Y')) {
@@ -225,6 +234,96 @@ class ManpowerController extends Controller
         // Kalkulasi Otomatis Man Days & Man Hours Sesuai Permintaan Resmi dengan cut-off harian riil
         $aggregateStats = HseDepartmentService::calculateAggregate($manpowers, $pStart, $pEnd, $selectedPeriodKey);
 
+        // Kalkulasi Statistik Perbandingan Manpower Per Bulan (12 Siklus) untuk Tampilan Eksekutif HSE Manager
+        $monthlyComparison = [];
+        $scopeWorkers = $scope === 'proyek' 
+            ? Manpower::where('departemen', 'ENT')->get()
+            : Manpower::whereNotIn('departemen', ['ENT', 'FA', 'FA/PROJECT', 'FA PROJECT', 'KLIEN', 'VISITOR', 'PKL'])->get();
+
+        foreach ($periods as $pkey => $pdata) {
+            $activeInP = 0;
+            $deptCounts = [];
+            $pManDays = 0;
+            $pManHours = 0;
+            $aktifList = [];
+            $masukList = [];
+            $keluarList = [];
+            $isFrozen = $pdata['is_frozen'] ?? false;
+
+            if (!$isFrozen) {
+                foreach ($scopeWorkers as $w) {
+                    $effStatus = HseDepartmentService::getEffectiveWorkerStatusForPeriod($w, $pdata['start_date'], $pdata['end_date'], $pkey);
+                    if ($effStatus === 'Aktif') {
+                        $activeInP++;
+                        $deptCounts[$w->departemen] = ($deptCounts[$w->departemen] ?? 0) + 1;
+                        $wCalc = HseDepartmentService::calculateWorkerHoursAndDays(
+                            $w->tgl_induction ?: ($w->tgl_masuk ?: $pdata['start_date']),
+                            $w->tgl_keluar,
+                            $pdata['start_date'],
+                            $pdata['end_date']
+                        );
+                        $pManDays += $wCalc['man_days'];
+                        $pManHours += $wCalc['man_hours'];
+                        $aktifList[] = [
+                            'nama' => $w->nama,
+                            'nik' => $w->nik ?: ('EMP-' . $w->departemen . '-' . str_pad($w->id, 3, '0', STR_PAD_LEFT)),
+                            'departemen' => $w->departemen,
+                            'posisi' => $w->posisi ?: '-',
+                        ];
+                    }
+
+                    // Pekerja Masuk Bulan Itu (tgl_induction atau tgl_masuk jatuh pada periode ini)
+                    $tglMasuk = $w->tgl_induction ?: $w->tgl_masuk;
+                    if ($tglMasuk && $tglMasuk >= $pdata['start_date'] && $tglMasuk <= $pdata['end_date']) {
+                        $masukList[] = [
+                            'nama' => $w->nama,
+                            'nik' => $w->nik ?: ('EMP-' . $w->departemen . '-' . str_pad($w->id, 3, '0', STR_PAD_LEFT)),
+                            'departemen' => $w->departemen,
+                            'posisi' => $w->posisi ?: '-',
+                            'tanggal' => date('d/m/Y', strtotime($tglMasuk)),
+                        ];
+                    }
+
+                    // Pekerja Keluar Bulan Itu (tgl_keluar jatuh pada periode ini)
+                    if ($w->tgl_keluar && $w->tgl_keluar >= $pdata['start_date'] && $w->tgl_keluar <= $pdata['end_date']) {
+                        $keluarList[] = [
+                            'nama' => $w->nama,
+                            'nik' => $w->nik ?: ('EMP-' . $w->departemen . '-' . str_pad($w->id, 3, '0', STR_PAD_LEFT)),
+                            'departemen' => $w->departemen,
+                            'posisi' => $w->posisi ?: '-',
+                            'tanggal' => date('d/m/Y', strtotime($w->tgl_keluar)),
+                        ];
+                    }
+                }
+            }
+
+            $monthlyComparison[$pkey] = [
+                'period_key' => $pkey,
+                'label' => $pdata['label'],
+                'month_name' => $pdata['month_name'],
+                'total_active' => $activeInP,
+                'total_masuk' => count($masukList),
+                'total_keluar' => count($keluarList),
+                'man_days' => $pManDays,
+                'man_hours' => $pManHours,
+                'dept_breakdown' => $deptCounts,
+                'is_frozen' => $isFrozen,
+                'aktif_list' => $aktifList,
+                'masuk_list' => $masukList,
+                'keluar_list' => $keluarList,
+            ];
+        }
+
+        $masukCount = 0;
+        $keluarCount = 0;
+        if ($selectedPeriodKey !== 'all_year' && isset($monthlyComparison[$selectedPeriodKey])) {
+            $masukCount = $monthlyComparison[$selectedPeriodKey]['total_masuk'] ?? 0;
+            $keluarCount = $monthlyComparison[$selectedPeriodKey]['total_keluar'] ?? 0;
+        } else {
+            $masukCount = array_sum(array_column($monthlyComparison, 'total_masuk'));
+            $keluarCount = array_sum(array_column($monthlyComparison, 'total_keluar'));
+        }
+
         $subconts = array_keys(HseDepartmentService::getPlantSubconts());
 
         return view('manpower.index', compact(
@@ -240,7 +339,10 @@ class ManpowerController extends Controller
             'activeCount',
             'nonAktifCount',
             'newInductionCount',
+            'masukCount',
+            'keluarCount',
             'aggregateStats',
+            'monthlyComparison',
             'departments',
             'subconts',
             'scope',

@@ -14,6 +14,8 @@
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <!-- SheetJS Export Library -->
     <script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
+    <!-- Chart.js Library for Manager Analytics & Graphs -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <!-- Flatpickr Date Picker (DD/MM/YYYY standard without browser cursor jump) -->
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/themes/airbnb.css">
@@ -27,11 +29,13 @@
             --murinda-navy-primary: #003366;
             --murinda-navy-accent: #004080;
             --murinda-red-accent: #dc2626;
-            --murinda-bg: #f1f5f9;
+            --murinda-green-hse: #16a34a;
+            --murinda-bg: #f8fafc;
             --murinda-card-bg: #ffffff;
-            --murinda-input-bg: #edf2f7;
-            --murinda-border: #cbd5e1;
-            --murinda-text: #1e293b;
+            --murinda-input-bg: #ffffff;
+            --murinda-border: #e2e8f0;
+            --murinda-border-dark: #000000;
+            --murinda-text: #0f172a;
             --murinda-text-muted: #64748b;
             --bs-primary: #003366 !important;
             --bs-primary-rgb: 0, 51, 102 !important;
@@ -40,7 +44,7 @@
             --bs-focus-ring-color: rgba(0, 51, 102, 0.25) !important;
         }
 
-        /* Penyeragaman Warna & Eliminasi Biru Stabilo / Cyan */
+        /* Penyeragaman Warna & Eliminasi Warna Terlalu Ramai */
         .text-primary { color: #003366 !important; }
         .bg-primary { background-color: #003366 !important; color: #ffffff !important; }
         .border-primary { border-color: #003366 !important; }
@@ -48,15 +52,16 @@
         .btn-primary:hover, .btn-primary:focus, .btn-primary:active { background-color: #001f3f !important; border-color: #001122 !important; color: #ffffff !important; }
         .btn-outline-primary { color: #003366 !important; border-color: #003366 !important; }
         .btn-outline-primary:hover { background-color: #003366 !important; color: #ffffff !important; }
-        .alert-info, .bg-info-subtle { background-color: #edf2f7 !important; border-left: 4px solid #003366 !important; color: #003366 !important; }
+        .alert-info, .bg-info-subtle { background-color: #f0f7ff !important; border-left: 4px solid #003366 !important; color: #003366 !important; }
         .bg-info { background-color: #003366 !important; color: #ffffff !important; }
 
-        /* Global Typography: Merriweather (Web-friendly Serif without crowded bold titles) */
+        /* Global Clean Typography: Inter Sans-serif (Modern, Bersih, Lega seperti Silokos & Sanggar Goong) */
         body, button, input, select, textarea, p, h1, h2, h3, h4, h5, h6, span, a, div, td, th, label, li, ul, ol, strong, b, em, small, table {
-            font-family: 'Merriweather', 'Times New Roman', Times, Georgia, serif;
+            font-family: 'Inter', system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+            letter-spacing: -0.01em;
         }
 
-        /* Protect FontAwesome Icons from being overwritten by serif fonts */
+        /* Protect FontAwesome Icons from font override */
         .fa, .fas, .far, .fal, .fab, .fa-solid, .fa-regular, .fa-brands, [class*="fa-"] {
             font-family: "Font Awesome 6 Free", "Font Awesome 6 Brands", FontAwesome !important;
             font-style: normal;
@@ -72,7 +77,7 @@
             margin: 0;
             padding: 0;
             overflow-x: hidden;
-            font-size: 14px;
+            font-size: 13.5px;
             line-height: 1.5;
         }
 
@@ -126,12 +131,12 @@
             border-radius: 8px !important;
             padding: 16px 20px !important;
             transition: all 0.2s ease;
-            box-shadow: 0 1px 3px rgba(0,0,0,0.05);
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08) !important;
             height: 100%;
         }
         .card-kpi-uniform:hover {
             transform: translateY(-2px);
-            box-shadow: 0 6px 16px rgba(0, 31, 63, 0.08);
+            box-shadow: 0 6px 18px rgba(0, 0, 0, 0.12) !important;
         }
         .kpi-title {
             font-size: 12px;
@@ -338,41 +343,179 @@
             background: #004080;
         }
 
+        .dept-compact-pill,
         .subcont-pill-card {
-            flex: 0 0 155px;
-            min-width: 155px;
             border-radius: 6px;
             background: #ffffff;
             border: 1px solid #cbd5e1;
-            padding: 10px 8px;
+            padding: 6px 12px;
             text-align: center;
             transition: all 0.2s ease;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            text-decoration: none;
+            color: #0f172a;
+            font-size: 12px;
+            font-weight: 600;
+            white-space: nowrap;
         }
 
+        .dept-compact-pill:hover,
         .subcont-pill-card:hover {
             border-color: #003366;
-            box-shadow: 0 4px 12px rgba(0, 51, 102, 0.1);
+            color: #003366;
+            background: #f8fafc;
         }
 
+        .dept-compact-pill.active-pill,
         .subcont-pill-card.active-pill {
-            background: #002b55 !important;
-            border: 2px solid #dc2626 !important;
-            box-shadow: 0 4px 14px rgba(0, 43, 85, 0.35);
-        }
-
-        .subcont-pill-card.active-pill .badge {
-            background-color: #f8fafc !important;
-            color: #003366 !important;
-            border: 1px solid #cbd5e1 !important;
-            font-weight: 700 !important;
-        }
-
-        .subcont-pill-card.active-pill .fs-5 {
+            background: #003366 !important;
+            border-color: #003366 !important;
             color: #ffffff !important;
+            box-shadow: 0 2px 6px rgba(0, 51, 102, 0.2);
         }
 
-        .subcont-pill-card.active-pill small {
-            color: #e2e8f0 !important;
+        .dept-compact-pill .badge,
+        .subcont-pill-card .badge {
+            background: #f1f5f9;
+            color: #0f172a;
+            border: 1px solid #cbd5e1;
+            font-weight: 700;
+            font-size: 11px;
+            padding: 2px 7px;
+            border-radius: 4px;
+        }
+
+        .dept-compact-pill.active-pill .badge,
+        .subcont-pill-card.active-pill .badge {
+            background: #ffffff !important;
+            color: #003366 !important;
+            border-color: #ffffff !important;
+        }
+
+        /* Grid Departemen / Subcont / Proyek — Rapi Per Baris */
+        .subcont-pill-btn {
+            border-radius: 6px;
+            background: #ffffff;
+            border: 1px solid #cbd5e1;
+            padding: 7px 10px;
+            transition: all 0.2s ease;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            text-decoration: none;
+            color: #0f172a;
+            font-size: 12px;
+            font-weight: 600;
+            height: 38px;
+            box-shadow: 0 1px 2px rgba(0,0,0,0.03);
+        }
+
+        .subcont-pill-btn:hover {
+            border-color: #003366;
+            color: #003366;
+            background: #f8fafc;
+        }
+
+        .subcont-pill-btn.active-pill {
+            background: #003366 !important;
+            border-color: #003366 !important;
+            color: #ffffff !important;
+            box-shadow: 0 2px 6px rgba(0, 51, 102, 0.2);
+        }
+
+        .subcont-pill-btn .badge {
+            background: #f1f5f9;
+            color: #0f172a;
+            border: 1px solid #cbd5e1;
+            font-weight: 700;
+            font-size: 11px;
+            padding: 2px 6px;
+            border-radius: 4px;
+            margin-left: 6px;
+            flex-shrink: 0;
+        }
+
+        .subcont-pill-btn.active-pill .badge {
+            background: #ffffff !important;
+            color: #003366 !important;
+            border-color: #ffffff !important;
+        }
+
+        /* Grid Departemen: 7 Atas, 7 Bawah */
+        .dept-grid-7 {
+            display: grid;
+            grid-template-columns: repeat(7, 1fr);
+            gap: 6px;
+        }
+        @media (max-width: 1200px) {
+            .dept-grid-7 {
+                grid-template-columns: repeat(4, 1fr);
+            }
+        }
+        @media (max-width: 576px) {
+            .dept-grid-7 {
+                grid-template-columns: repeat(2, 1fr);
+            }
+        }
+
+        /* Grid Subcont: 4 Atas, 4 Bawah */
+        .subcont-grid-4 {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 8px;
+        }
+        @media (max-width: 768px) {
+            .subcont-grid-4 {
+                grid-template-columns: repeat(2, 1fr);
+            }
+        }
+
+        /* Compact Pill Button (Lebih Kecil Biar Muat & Presisi) */
+        .subcont-pill-btn-compact {
+            border-radius: 5px;
+            background: #ffffff;
+            border: 1px solid #cbd5e1;
+            padding: 4px 6px;
+            transition: all 0.2s ease;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            text-decoration: none;
+            color: #0f172a;
+            font-size: 11px;
+            font-weight: 600;
+            height: 32px;
+            box-shadow: 0 1px 2px rgba(0,0,0,0.03);
+            overflow: hidden;
+        }
+        .subcont-pill-btn-compact:hover {
+            border-color: #003366;
+            color: #003366;
+            background: #f8fafc;
+        }
+        .subcont-pill-btn-compact.active-pill {
+            background: #003366 !important;
+            border-color: #003366 !important;
+            color: #ffffff !important;
+            box-shadow: 0 2px 5px rgba(0, 51, 102, 0.2);
+        }
+        .subcont-pill-btn-compact .badge {
+            background: #f1f5f9;
+            color: #0f172a;
+            border: 1px solid #cbd5e1;
+            font-weight: 700;
+            font-size: 10px;
+            padding: 1px 4px;
+            border-radius: 3px;
+            margin-left: 4px;
+            flex-shrink: 0;
+        }
+        .subcont-pill-btn-compact.active-pill .badge {
+            background: #ffffff !important;
+            color: #003366 !important;
+            border-color: #ffffff !important;
         }
 
         .sidebar-brand {
@@ -489,16 +632,34 @@
 
         /* Cards & Buttons Custom Style */
         .card-custom {
-            background: #ffffff;
-            border: 1px solid #e2e8f0;
-            border-radius: 8px;
-            box-shadow: 0 1px 3px rgba(0,0,0,0.05);
+            background: #ffffff !important;
+            border: 1px solid #e2e8f0 !important;
+            border-radius: 8px !important;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08) !important;
             margin-bottom: 24px;
             transition: all 0.2s ease;
         }
 
         .card-custom:hover {
-            box-shadow: 0 6px 18px rgba(0, 51, 102, 0.08);
+            box-shadow: 0 6px 18px rgba(0, 0, 0, 0.12) !important;
+        }
+
+        .btn-quick-action {
+            background: #ffffff !important;
+            color: #003366 !important;
+            border: 1.5px solid #cbd5e1 !important;
+            box-shadow: 0 2px 6px rgba(0, 0, 0, 0.06) !important;
+            transition: all 0.2s ease;
+            font-weight: 600;
+        }
+        .btn-quick-action:hover,
+        .btn-quick-action:focus,
+        .btn-quick-action:active,
+        .btn-quick-action.active {
+            background: #003366 !important;
+            color: #ffffff !important;
+            border-color: #003366 !important;
+            box-shadow: 0 4px 12px rgba(0, 51, 102, 0.25) !important;
         }
 
         .card-custom .card-header-custom {
@@ -533,26 +694,37 @@
             transform: translateY(-1px);
         }
 
-        .btn-gradient-blue, .btn-murinda-primary {
-            background: #003366 !important;
+        /* Cetak Absen / Lembar Presensi / Primary Action: Murinda Navy (#003366), White on Hover */
+        .btn-gradient-blue,
+        .btn-murinda-primary,
+        .btn-cetak-absen,
+        .btn-primary,
+        a[href*="absensi/setup"] {
+            background-color: #003366 !important;
             color: #ffffff !important;
-            border: 1px solid #002244 !important;
+            border: 1px solid #003366 !important;
             border-radius: 6px;
             padding: 7px 16px;
             font-weight: 600;
             font-size: 13px;
-            box-shadow: 0 2px 6px rgba(0, 51, 102, 0.2);
+            box-shadow: 0 2px 6px rgba(0, 51, 102, 0.15);
             transition: all 0.2s ease;
         }
 
-        .btn-gradient-blue:hover, .btn-murinda-primary:hover {
-            background: #001f3f !important;
-            color: #ffffff !important;
+        .btn-gradient-blue:hover,
+        .btn-murinda-primary:hover,
+        .btn-cetak-absen:hover,
+        .btn-primary:hover,
+        a[href*="absensi/setup"]:hover {
+            background-color: #ffffff !important;
+            color: #003366 !important;
+            border-color: #003366 !important;
+            box-shadow: 0 3px 8px rgba(0, 51, 102, 0.2);
             transform: translateY(-1px);
         }
 
-        /* Excel Export Button (Ijo / Green) */
-        .btn-excel, .btn-emerald-excel {
+        /* Excel Export Button: Uniform Green (#16a34a) */
+        .btn-excel, .btn-emerald-excel, button[onclick*="exportTableToExcel"], a[onclick*="exportTableToExcel"] {
             background-color: #16a34a !important;
             color: #ffffff !important;
             border: 1px solid #15803d !important;
@@ -564,15 +736,15 @@
             transition: all 0.2s ease;
         }
 
-        .btn-excel:hover, .btn-emerald-excel:hover {
+        .btn-excel:hover, .btn-emerald-excel:hover, button[onclick*="exportTableToExcel"]:hover, a[onclick*="exportTableToExcel"]:hover {
             background-color: #15803d !important;
             color: #ffffff !important;
             box-shadow: 0 3px 8px rgba(22, 163, 74, 0.3);
             transform: translateY(-1px);
         }
 
-        /* PDF Export / Cetak Button (Merah / Red) */
-        .btn-pdf, .btn-murinda-danger {
+        /* PDF Export / Cetak Button: Uniform Red (#dc2626) */
+        .btn-pdf, .btn-murinda-danger, button[onclick*="window.print"], a[onclick*="window.print"] {
             background-color: #dc2626 !important;
             color: #ffffff !important;
             border: 1px solid #b91c1c !important;
@@ -584,7 +756,7 @@
             transition: all 0.2s ease;
         }
 
-        .btn-pdf:hover, .btn-murinda-danger:hover {
+        .btn-pdf:hover, .btn-murinda-danger:hover, button[onclick*="window.print"]:hover, a[onclick*="window.print"]:hover {
             background-color: #b91c1c !important;
             color: #ffffff !important;
             box-shadow: 0 3px 8px rgba(220, 38, 38, 0.3);
@@ -646,103 +818,128 @@
             color: #ffffff !important;
         }
 
-        /* Status Badges - Standardized Design */
+        /* Status Badges - Standardized Clean Design */
         .badge-aman {
-            background-color: #d1e7dd;
-            color: #0f5132;
-            border: 1px solid #badbcc;
+            background-color: #f1f5f9;
+            color: #003366;
+            border: 1px solid #cbd5e1;
             font-weight: 600;
             padding: 4px 10px;
             border-radius: 4px;
             font-size: 11.5px;
             display: inline-flex;
             align-items: center;
-            gap: 4px;
         }
 
         .badge-warning {
-            background-color: #fff3cd;
-            color: #664d03;
-            border: 1px solid #ffecb5;
+            background-color: #fef3c7;
+            color: #92400e;
+            border: 1px solid #fde68a;
             font-weight: 600;
             padding: 4px 10px;
             border-radius: 4px;
             font-size: 11.5px;
             display: inline-flex;
             align-items: center;
-            gap: 4px;
         }
 
         .badge-bahaya {
-            background-color: #f8d7da;
-            color: #842029;
-            border: 1px solid #f5c2c7;
+            background-color: #fee2e2;
+            color: #991b1b;
+            border: 1px solid #fecaca;
             font-weight: 600;
             padding: 4px 10px;
             border-radius: 4px;
             font-size: 11.5px;
             display: inline-flex;
             align-items: center;
-            gap: 4px;
         }
 
-        /* Professional Enterprise Uniform Table (Header Solid Navy, Zebra Putih & Abu Lembut) */
-        .table-custom {
-            font-size: 13.5px;
-            margin: 0;
-            border-collapse: collapse;
+        /* ======================================================== */
+        /* STANDARD ENTERPRISE CLEAN TABLE                          */
+        /* Putih bersih, garis (list) hitam, teks hitam, paten abu */
+        /* ======================================================== */
+        .table-custom,
+        .table {
+            background-color: #ffffff !important;
+            border-collapse: collapse !important;
             width: 100%;
-            border: 1px solid #cbd5e1;
+            border: 1px solid #000000 !important;
+            font-size: 13px;
         }
 
-        .table-custom th {
-            background: #003366 !important;
-            color: #ffffff !important;
-            font-weight: 700;
-            font-size: 12.5px;
+        .table-custom th,
+        .table th {
+            background-color: #ffffff !important;
+            color: #000000 !important;
+            font-weight: 700 !important;
+            font-size: 12px !important;
             text-transform: uppercase;
             letter-spacing: 0.5px;
-            border: 1px solid #002244 !important;
+            border: 1px solid #000000 !important;
+            border-bottom: 2px solid #000000 !important;
             padding: 10px 12px;
             white-space: nowrap;
             vertical-align: middle;
         }
 
-        .table-custom tbody tr:nth-child(odd) td {
+        .table-custom tbody tr td,
+        .table tbody tr td {
             background-color: #ffffff !important;
+            color: #000000 !important;
             padding: 9px 12px;
             vertical-align: middle;
-            border: 1px solid #e2e8f0;
-            color: #1e293b;
+            border: 1px solid #000000 !important;
             font-size: 13px;
         }
 
-        .table-custom tbody tr:nth-child(even) td {
+        .table-custom tbody tr:hover td,
+        .table tbody tr:hover td {
             background-color: #f8fafc !important;
-            padding: 9px 12px;
-            vertical-align: middle;
-            border: 1px solid #e2e8f0;
-            color: #1e293b;
-            font-size: 13px;
         }
 
-        .table-custom tbody tr:hover td {
-            background-color: #edf2f7 !important;
+        .table-custom tbody td a:not(.badge):not(.btn),
+        .table tbody td a:not(.badge):not(.btn) {
+            color: #000000 !important;
         }
 
-        /* Form Control Compact */
-        .form-control-custom, .form-select-custom, input.form-control, select.form-select {
+        /* Teks yang paten dari sistem (misalnya ID Pekerja / NIP, Kode Unik) dibuat warna abu-abu */
+        .system-paten,
+        .text-system-paten,
+        .table-custom tbody td .system-paten,
+        .table tbody td .system-paten,
+        .table-custom tbody td small.font-monospace,
+        .table tbody td small.font-monospace,
+        .table-custom tbody td .font-monospace,
+        .table tbody td .font-monospace,
+        .table-custom td.system-paten,
+        .table td.system-paten {
+            color: #64748b !important;
+            font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace !important;
+            font-size: 11.5px !important;
+            font-weight: 600 !important;
+            letter-spacing: 0.3px;
+        }
+
+        /* Form Filter & Input Text: Uniform Solid Black */
+        .form-control-custom, .form-select-custom, input.form-control, select.form-select, textarea.form-control {
             border: 1px solid #cbd5e1 !important;
-            background-color: #edf2f7 !important;
-            color: #003366 !important;
+            background-color: #ffffff !important;
+            color: #000000 !important;
             border-radius: 6px !important;
             padding: 7px 12px !important;
             font-size: 13px !important;
             transition: all 0.2s ease;
         }
 
+        .form-label, label {
+            color: #000000 !important;
+            font-weight: 600;
+        }
+
         .form-control-custom:focus, .form-select-custom:focus, input.form-control:focus, select.form-select:focus {
             background-color: #ffffff !important;
+            color: #000000 !important;
             border-color: #003366 !important;
             box-shadow: 0 0 0 3px rgba(0, 51, 102, 0.15) !important;
             outline: none;
@@ -784,6 +981,30 @@
                 display: none !important;
             }
         }
+
+        @readonly
+        /* Mode Read-Only Otomatis untuk Role HSE Manager */
+        .btn-murinda-primary[data-bs-toggle="modal"],
+        [data-bs-target="#modalTambahPekerja"],
+        [data-bs-target="#modalTambahPekerjaSubcont"],
+        [data-bs-target="#modalTambahProyek"],
+        [data-bs-target="#modalTambahVisitor"],
+        [data-bs-target="#modalEditCompany"],
+        [data-bs-target="#modalEditPersonel"],
+        [data-bs-target="#modalEditProyek"],
+        [data-bs-target="#modalEditVisitor"],
+        .btn-action-edit,
+        .btn-action-finish,
+        .btn-action-delete,
+        .form-delete-confirm,
+        a[href*="apd/create"],
+        #input-tab,
+        #formInputAbsensi,
+        .btn-simpan-absensi,
+        .read-only-hide {
+            display: none !important;
+        }
+        @endreadonly
     </style>
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 </head>
@@ -791,16 +1012,33 @@
 
     <!-- Sidebar Navigation -->
     <div id="sidebar">
-        <div class="sidebar-brand text-center" style="padding: 20px 16px; border-bottom: 1px solid rgba(255, 255, 255, 0.12); background: rgba(0, 0, 0, 0.15);">
+        <div class="sidebar-brand text-center" style="padding: 16px 14px; border-bottom: 1px solid rgba(255, 255, 255, 0.12); background: rgba(0, 0, 0, 0.15);">
             <a href="{{ route('dashboard') }}" class="d-inline-block text-center w-100">
-                <img src="{{ asset('gambar/logo-murinda.png') }}" alt="MURINDA" style="max-width: 170px; width: 80%; height: auto; object-fit: contain;">
+                <img src="{{ asset('gambar/logo-murinda.png') }}" alt="MURINDA" style="max-width: 160px; width: 75%; height: auto; object-fit: contain;">
             </a>
-            <div class="text-white small fw-bold mt-2" style="font-size: 11px; letter-spacing: 0.5px; opacity: 0.95;">
-                SIMA-HSE
-            </div>
         </div>
 
         <div class="sidebar-menu">
+            @readonly
+            <div class="nav-item-header">Ringkasan Eksekutif</div>
+            <a href="{{ route('dashboard') }}" class="nav-link {{ request()->routeIs('dashboard') ? 'active' : '' }}">
+                <i class="fa-solid fa-chart-pie"></i> Dashboard Eksekutif
+            </a>
+
+            <div class="nav-item-header">Statistik & Monitoring</div>
+            <a href="{{ route('subcont.departemen') }}" class="nav-link {{ request()->routeIs('subcont.*') ? 'active' : '' }}">
+                <i class="fa-solid fa-users"></i> Monitoring Tenaga Kerja
+            </a>
+            <a href="{{ route('manpower.index') }}" class="nav-link {{ request()->routeIs('manpower.*') ? 'active' : '' }}">
+                <i class="fa-solid fa-users-viewfinder"></i> Statistik Manpower
+            </a>
+            <a href="{{ route('apd.index') }}" class="nav-link {{ request()->routeIs('apd.*') ? 'active' : '' }}">
+                <i class="fa-solid fa-shield-halved"></i> Ringkasan Distribusi APD
+            </a>
+            <a href="{{ route('absensi.index') }}" class="nav-link {{ request()->routeIs('absensi.*') ? 'active' : '' }}">
+                <i class="fa-solid fa-calendar-check"></i> Rekapitulasi Presensi SMT
+            </a>
+            @else
             <div class="nav-item-header">Menu Utama</div>
             <a href="{{ route('dashboard') }}" class="nav-link {{ request()->routeIs('dashboard') ? 'active' : '' }}">
                 <i class="fa-solid fa-chart-pie"></i> Dashboard
@@ -813,8 +1051,11 @@
             <a href="{{ route('subcont.subcont') }}" class="nav-link {{ request()->routeIs('subcont.subcont') ? 'active' : '' }}">
                 <i class="fa-solid fa-handshake"></i> Monitoring Subcont
             </a>
-            <a href="{{ route('subcont.proyek') }}" class="nav-link {{ request()->routeIs('subcont.proyek') ? 'active' : '' }}">
-                <i class="fa-solid fa-trowel-bricks"></i> Monitoring Proyek
+            <a href="{{ route('subcont.proyek', ['company' => 'ENT']) }}" class="nav-link {{ request()->routeIs('subcont.proyek') && request('company', 'ENT') === 'ENT' ? 'active' : '' }}">
+                <i class="fa-solid fa-trowel-bricks"></i> Monitoring ENT
+            </a>
+            <a href="{{ route('subcont.proyek', ['company' => 'FA/PROJECT']) }}" class="nav-link {{ request()->routeIs('subcont.proyek') && (request('company') === 'FA/PROJECT' || request('company') === 'FA') ? 'active' : '' }}">
+                <i class="fa-solid fa-briefcase"></i> Monitoring FA
             </a>
             <a href="{{ route('subcont.visitor') }}" class="nav-link {{ request()->routeIs('subcont.visitor') ? 'active' : '' }}">
                 <i class="fa-solid fa-user-shield"></i> Monitoring Tamu
@@ -825,16 +1066,17 @@
                 <i class="fa-solid fa-id-card"></i> Manpower Pekerja
             </a>
             <a href="{{ route('manpower.proyek') }}" class="nav-link {{ request()->routeIs('manpower.proyek') ? 'active' : '' }}">
-                <i class="fa-solid fa-helmet-safety"></i> Manpower Proyek
+                <i class="fa-solid fa-helmet-safety"></i> Manpower ENT
             </a>
 
             <div class="nav-item-header">Logistik & Presensi</div>
             <a href="{{ route('apd.index') }}" class="nav-link {{ request()->routeIs('apd.*') ? 'active' : '' }}">
                 <i class="fa-solid fa-hard-hat"></i> Logistik APD
             </a>
-            <a href="{{ route('absensi.setup') }}" class="nav-link {{ request()->routeIs('absensi.*') ? 'active' : '' }}">
+            <a href="{{ route('absensi.index') }}" class="nav-link {{ request()->routeIs('absensi.*') ? 'active' : '' }}">
                 <i class="fa-solid fa-clipboard-user"></i> Absensi Lapangan
             </a>
+            @endreadonly
         </div>
 
         <div style="padding: 15px; border-top: 1px solid rgba(255,255,255,0.1);">
@@ -850,16 +1092,16 @@
     <!-- Topbar Header -->
     <div id="topbar">
         <div class="d-flex align-items-center gap-3">
-            <button type="button" id="sidebarToggle" class="btn btn-light border btn-sm shadow-sm px-2.5 py-1.5" title="Tutup / Buka Menu Sidebar">
+            <button type="button" id="sidebarToggle" class="btn btn-light border btn-sm shadow-sm px-3 py-1.5 me-2" title="Tutup / Buka Menu Sidebar">
                 <i class="fa-solid fa-bars-staggered text-primary fs-6"></i>
             </button>
             <div>
-                <div class="text-uppercase fw-bold" style="font-size: 10px; letter-spacing: 0.8px; color: #64748b; margin-bottom: 2px;">
-                    SIMA-HSE
+                <div class="d-flex align-items-center gap-2">
+                    <span class="badge" style="background: #003366; color: #ffffff; font-size: 10px; letter-spacing: 0.5px; font-weight: 700; padding: 3px 6px;">SIMA-HSE</span>
+                    <h5 class="fw-bold text-navy m-0" style="color: #003366; font-size: 16px; line-height: 1.2;">
+                        @yield('page_heading', trim($__env->yieldContent('title')) ?: 'DEPARTEMEN HSE & K3LH')
+                    </h5>
                 </div>
-                <h5 class="fw-bold text-navy m-0" style="color: #003366; font-size: 16px; line-height: 1.2;">
-                    @yield('page_heading', trim($__env->yieldContent('title')) ?: 'DEPARTEMEN HSE & K3LH')
-                </h5>
                 @hasSection('page_subheading')
                     <div class="text-muted small fw-semibold" style="font-size: 11px; margin-top: 2px;">
                         @yield('page_subheading')
@@ -868,19 +1110,32 @@
             </div>
         </div>
 
-        <div class="profile-badge d-flex align-items-center gap-2 p-1 px-2 rounded-3 bg-light border">
+        <div class="profile-badge d-flex align-items-center gap-2 p-1 px-2.5 rounded-3 bg-light border">
             <div class="text-end me-1">
-                <div class="fw-bold fs-7 text-navy" style="font-size: 12px; line-height: 1.2;">{{ session('user_name', 'Petugas HSE') }}</div>
-                <div class="badge bg-success text-white fw-bold px-2 py-0" style="font-size: 10px; letter-spacing: 0.3px;">HSE PT MURINDA IRON STEEL</div>
+                @readonly
+                    <div class="fw-bold fs-7 text-navy" style="font-size: 13px; line-height: 1.2;">{{ session('user_name', 'HSE Manager') }}</div>
+                @else
+                    <div class="fw-bold text-navy" style="font-size: 13px; line-height: 1.2;">HSE Admin</div>
+                @endreadonly
             </div>
-            <div class="avatar-circle shadow-sm rounded-circle bg-white d-flex align-items-center justify-content-center" style="width: 38px; height: 38px; border: 2px solid #004080;">
-                <i class="fa-solid fa-user text-primary fs-5"></i>
+            <div class="avatar-circle shadow-sm rounded-circle bg-white d-flex align-items-center justify-content-center" style="width: 38px; height: 38px; border: 2px solid @readonly #16a34a @else #003366 @endreadonly;">
+                <i class="fa-solid @readonly fa-user-tie text-success @else fa-user text-primary @endreadonly fs-5"></i>
             </div>
         </div>
     </div>
 
     <!-- Main Content -->
     <div id="main-wrapper">
+        @php
+            $isChildForm = request()->routeIs(['*.create', '*.edit', '*.show', 'absensi.setup', 'absensi.print']) || (View::hasSection('is_child_form'));
+        @endphp
+        @if($isChildForm)
+            <div class="mb-3 no-print">
+                <button type="button" onclick="if(window.history.length > 1){ window.history.back(); } else { window.location.href='{{ route('dashboard') }}'; }" class="btn btn-outline-secondary btn-sm shadow-sm px-3 py-1.5 d-inline-flex align-items-center gap-2" style="border-radius: 6px; font-size: 12.5px; font-weight: 600; background: #ffffff; color: #003366; border: 1px solid #cbd5e1;" title="Kembali">
+                    <i class="fa-solid fa-arrow-left"></i> Kembali
+                </button>
+            </div>
+        @endif
         @if(session('success'))
             <!-- Pop-up Notifikasi Berhasil Masuk ke Sistem (Posisi Tepat di Tengah Layar) -->
             <script>
@@ -1061,24 +1316,17 @@
                 }
             }, true);
 
-            // Sidebar Toggle Persistence
+            // Sidebar Toggle (Bisa di-hide manual, tapi tidak otomatis ke-hide saat ganti menu)
             const sidebar = document.getElementById('sidebar');
             const topbar = document.getElementById('topbar');
             const mainWrapper = document.getElementById('main-wrapper');
             const sidebarToggle = document.getElementById('sidebarToggle');
-
-            if (localStorage.getItem('sidebar_collapsed') === 'true') {
-                if (sidebar) sidebar.classList.add('collapsed');
-                if (topbar) topbar.classList.add('expanded');
-                if (mainWrapper) mainWrapper.classList.add('expanded');
-            }
 
             if (sidebarToggle) {
                 sidebarToggle.addEventListener('click', function() {
                     if (sidebar) sidebar.classList.toggle('collapsed');
                     if (topbar) topbar.classList.toggle('expanded');
                     if (mainWrapper) mainWrapper.classList.toggle('expanded');
-                    localStorage.setItem('sidebar_collapsed', sidebar ? sidebar.classList.contains('collapsed') : false);
                 });
             }
 
@@ -1103,6 +1351,38 @@
                     }
                 });
             }
+            // Horizontal Scroller Auto-Center Active Pill & Drag-to-Scroll
+            document.querySelectorAll('.horizontal-subcont-scroll').forEach(function(scroller) {
+                const activePill = scroller.querySelector('.active-pill');
+                if (activePill) {
+                    // Center the active pill horizontally without jumping vertical window scroll
+                    const scrollerRect = scroller.getBoundingClientRect();
+                    const pillRect = activePill.getBoundingClientRect();
+                    const offset = (pillRect.left + pillRect.width / 2) - (scrollerRect.left + scrollerRect.width / 2);
+                    scroller.scrollLeft += offset;
+                }
+
+                let isDown = false;
+                let startX, scrollLeft;
+                scroller.addEventListener('mousedown', function(e) {
+                    if (e.target.closest('a') && !e.shiftKey) return;
+                    isDown = true;
+                    scroller.style.cursor = 'grabbing';
+                    startX = e.pageX - scroller.offsetLeft;
+                    scrollLeft = scroller.scrollLeft;
+                });
+                window.addEventListener('mouseup', function() {
+                    isDown = false;
+                    scroller.style.cursor = '';
+                });
+                scroller.addEventListener('mousemove', function(e) {
+                    if (!isDown) return;
+                    e.preventDefault();
+                    const x = e.pageX - scroller.offsetLeft;
+                    const walk = (x - startX) * 1.5;
+                    scroller.scrollLeft = scrollLeft - walk;
+                });
+            });
         });
     </script>
     @if(session('success'))

@@ -38,10 +38,10 @@
                             <option value="SEMUA" selected>-- Seluruh Departemen & Subcont (Semua Pekerja Aktif) --</option>
                             <optgroup label="Subkontraktor Mitra (SUB):">
                                 @foreach($subconts as $sc)
-                                    <option value="{{ $sc->code }}">{{ $sc->code }} - {{ $sc->name }}</option>
+                                    <option value="{{ $sc->code }}">{{ $sc->code }}</option>
                                 @endforeach
                             </optgroup>
-                            <optgroup label="Departemen Internal Pabrikasi:">
+                            <optgroup label="Departemen Internal Perusahaan:">
                                 @foreach($departments as $dept)
                                     <option value="{{ $dept }}">{{ $dept }}</option>
                                 @endforeach

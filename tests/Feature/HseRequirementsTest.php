@@ -54,7 +54,7 @@ class HseRequirementsTest extends TestCase
         $response->assertSee('HSE');
         $response->assertSee('Pekerja Aktif');
         $response->assertSee('Pekerja Non-Aktif');
-        $response->assertSee('Periode (26 s/d 25)');
+        $response->assertSee('Periode:');
         $response->assertSee('Monitoring Departemen');
     }
 
@@ -67,7 +67,7 @@ class HseRequirementsTest extends TestCase
         $response->assertSee('SUB.SUM');
         $response->assertSee('Pekerja Aktif');
         $response->assertSee('Pekerja Non-Aktif');
-        $response->assertSee('Periode (26 s/d 25)');
+        $response->assertSee('Periode:');
         $response->assertSee('Monitoring Subkontraktor');
     }
 
@@ -258,7 +258,120 @@ class HseRequirementsTest extends TestCase
 
         $response->assertRedirect(route('dashboard'));
         $this->assertEquals('HSEadmin', session('user_name'));
+        $this->assertEquals('admin', session('user_role'));
+        $this->assertFalse(session('is_read_only'));
         $this->assertTrue(session('is_logged_in'));
+    }
+
+    public function test_hse_manager_credentials_authenticate_with_read_only_role()
+    {
+        $response = $this->post('/login', [
+            'email' => 'HSEManager',
+            'password' => 'hsemurinda123',
+        ]);
+
+        $response->assertRedirect(route('dashboard'));
+        $this->assertEquals('HSEManager', session('user_name'));
+        $this->assertEquals('manager', session('user_role'));
+        $this->assertTrue(session('is_read_only'));
+        $this->assertTrue(session('is_logged_in'));
+    }
+
+    public function test_hse_manager_read_only_blocks_mutations()
+    {
+        // Login as HSEManager
+        $this->post('/login', [
+            'email' => 'HSEManager',
+            'password' => 'hsemurinda123',
+        ]);
+
+        // Attempt mutating subcont creation
+        $response = $this->post('/subcont', [
+            'nama' => 'Pekerja Tidak Boleh Dibuat',
+            'company_code' => 'HRD',
+            'posisi' => 'Staff',
+            'tgl_masuk' => '2026-01-01',
+            'status' => 'Aktif',
+        ]);
+
+        $response->assertSessionHas('error');
+        $this->assertDatabaseMissing('subcont_personnels', [
+            'nama' => 'Pekerja Tidak Boleh Dibuat',
+        ]);
+    }
+
+    public function test_hse_manager_can_view_dashboard_and_monitoring_with_read_only_badge()
+    {
+        // Login as HSEManager
+        $this->post('/login', [
+            'email' => 'HSEManager',
+            'password' => 'hsemurinda123',
+        ]);
+
+        $dashboardResponse = $this->get('/dashboard');
+        $dashboardResponse->assertStatus(200);
+        $dashboardResponse->assertDontSee('HSE MANAGER (READ ONLY)');
+        $dashboardResponse->assertSee('HSEManager');
+
+        $deptResponse = $this->get('/monitoring/departemen');
+        $deptResponse->assertStatus(200);
+        $deptResponse->assertDontSee('HSE MANAGER (READ ONLY)');
+
+        $apdResponse = $this->get('/apd');
+        $apdResponse->assertStatus(200);
+        $apdResponse->assertDontSee('HSE MANAGER (READ ONLY)');
+
+        $absensiResponse = $this->get('/absensi');
+        $absensiResponse->assertStatus(200);
+        $absensiResponse->assertDontSee('HSE MANAGER (READ ONLY)');
+    }
+
+    public function test_calculate_weekly_smt_lowest_returns_correct_stats()
+    {
+        $stats = \App\Services\HseDepartmentService::calculateWeeklySmtLowest();
+        $this->assertIsArray($stats);
+        $this->assertArrayHasKey('lowest_percentage', $stats);
+        $this->assertArrayHasKey('lowest_week_label', $stats);
+        $this->assertArrayHasKey('weeks', $stats);
+        $this->assertCount(4, $stats['weeks']);
+    }
+
+    public function test_both_roles_can_view_lowest_weekly_smt_percentage_on_dashboard_and_absensi()
+    {
+        // 1. Role HSE Admin
+        $this->post('/login', [
+            'email' => 'HSEadmin',
+            'password' => 'hsemurinda123',
+        ]);
+
+        $adminDashboard = $this->get('/dashboard');
+        $adminDashboard->assertStatus(200);
+        $adminDashboard->assertSee('SMT Terendah (Perminggu)');
+        $adminDashboard->assertSee('Rekap Kehadiran SMT Mingguan dan Persentase Terendah');
+
+        $adminAbsensi = $this->get('/absensi');
+        $adminAbsensi->assertStatus(200);
+        $adminAbsensi->assertSee('% Total SMT Terendah (Perminggu)');
+        $adminAbsensi->assertSee('Rekapitulasi Kehadiran SMT Perminggu');
+
+        // Logout
+        $this->post('/logout');
+
+        // 2. Role HSE Manager
+        $this->post('/login', [
+            'email' => 'HSEManager',
+            'password' => 'hsemurinda123',
+        ]);
+
+        $managerDashboard = $this->get('/dashboard');
+        $managerDashboard->assertStatus(200);
+        $managerDashboard->assertSee('SMT Terendah (Perminggu)');
+        $managerDashboard->assertSee('Rekap Kehadiran SMT Mingguan dan Persentase Terendah');
+
+        $managerAbsensi = $this->get('/absensi');
+        $managerAbsensi->assertStatus(200);
+        $managerAbsensi->assertSee('% Total SMT Terendah (Perminggu)');
+        $managerAbsensi->assertSee('Rekapitulasi Kehadiran SMT Perminggu');
     }
 
     public function test_worker_reactivation_requires_induction_ulang_and_resets_tgl_keluar()

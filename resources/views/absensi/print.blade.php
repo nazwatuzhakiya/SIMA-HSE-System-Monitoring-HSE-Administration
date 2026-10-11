@@ -83,7 +83,7 @@
                     Dept / Sub: {{ $subcontName }}
                 </div>
                 <div style="font-size: 11px; opacity: 0.85; margin-top: 4px;">
-                    Tanggal Kegiatan: <strong style="color: #ffffff;">{{ date('d F Y', strtotime($tanggal)) }}</strong> | Status: Auto-Synced Active Workers
+                    Tanggal Kegiatan: <strong style="color: #ffffff;">{{ date('d F Y', strtotime($tanggal)) }}</strong>
                 </div>
             </div>
         </div>
@@ -126,25 +126,6 @@
             @endforelse
         </tbody>
     </table>
-
-    <!-- Signature Footer Box -->
-    <div class="row text-center mt-5" style="font-size: 11px;">
-        <div class="col-4">
-            <div>Dibuat Oleh:</div>
-            <div style="height: 60px;"></div>
-            <div class="fw-bold">( HSE Inspector / Safety Officer )</div>
-        </div>
-        <div class="col-4">
-            <div>Diperiksa Oleh:</div>
-            <div style="height: 60px;"></div>
-            <div class="fw-bold">( Foreman / Representative Subcont )</div>
-        </div>
-        <div class="col-4">
-            <div>Disetujui Oleh:</div>
-            <div style="height: 60px;"></div>
-            <div class="fw-bold">( HSE Manager Plant Kalijati )</div>
-        </div>
-    </div>
 
 </body>
 </html>

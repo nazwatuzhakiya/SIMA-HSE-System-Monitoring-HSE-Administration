@@ -44,7 +44,7 @@ class SubcontController extends Controller
 
         $allOfficial = HseDepartmentService::getAllOfficialEntities();
         foreach ($allOfficial as $code => $name) {
-            SubcontCompany::firstOrCreate(
+            SubcontCompany::updateOrCreate(
                 ['code' => $code],
                 [
                     'name' => $name,
@@ -131,6 +131,13 @@ class SubcontController extends Controller
             'Painter', 'Blaster', 'Helper', 'Fitter', 'Welder'
         ];
 
+        // Seluruh Tenaga Kerja Gabungan (Departemen, Subcont, & ENT) untuk Tampilan Eksekutif HSE Manager
+        $allCombinedPersonnels = SubcontPersonnel::whereNotIn('company_code', ['KLIEN', 'VISITOR', 'PKL', 'FA', 'FA/PROJECT', 'FA PROJECT'])
+            ->orderBy('company_code', 'asc')
+            ->orderByRaw("CASE WHEN status = 'Aktif' THEN 0 ELSE 1 END ASC")
+            ->orderBy('nama', 'asc')
+            ->get();
+
         return view('subcont.index', compact(
             'personnels',
             'companies',
@@ -142,7 +149,8 @@ class SubcontController extends Controller
             'totalNonActiveWorkers',
             'totalInductionPeriod',
             'totalExitPeriod',
-            'departments'
+            'departments',
+            'allCombinedPersonnels'
         ));
     }
 
